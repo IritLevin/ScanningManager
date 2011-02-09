@@ -126,7 +126,6 @@ namespace ScaningManager
 			while ((data = myProcess.StandardOutput.ReadLine()) != null)
 			{
 				allData += ("\n" + data);
-				//System.Threading.Thread.Sleep(100);
 			}
 			ReturnedData = allData;
 		}
@@ -169,6 +168,7 @@ namespace ScaningManager
 			processThread.IsBackground = true;
 			processThread.Start();
 			processThread.Join();
+			System.Threading.Thread.Sleep(1000);
 		}
 		
 		/// <summary>
@@ -186,12 +186,12 @@ namespace ScaningManager
 		/// </summary>
 		public void DevconEnable(string _InstanceID)
 		{
-			//ScannerName2InstanceId();
 			InstanceID = _InstanceID;
 			processThread = new Thread(new ThreadStart(RunDevCon2EnableImagingDevice));
 			processThread.IsBackground = true;
 			processThread.Start();
 			processThread.Join();
+			System.Threading.Thread.Sleep(1000);
 		}
 		
 		/// <summary>

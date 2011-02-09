@@ -35,29 +35,23 @@ namespace ScaningManager
 		DateTime NextScan;
 		int HunderdNano2Sec = 10000000;
 		DeviceInfo[] ScannersList;
-//		private EventLog ScnMngrEventLog;
 		ScnMngrLog scnMngrLog=null;
 		string EnvLogFileName;
 		bool AllScannersEnabled = true;
 		
+		#region Form methods
 		public MainForm()
-		{
-
-			
+		{			
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			InitializeComponent();
-//			ScnMngrEventLog = new EventLog();
-//			ScnMngrEventLog.Log =  "Application";
-//			ScnMngrEventLog.Source = "ScannerControl";
 			myScannerControl = new ScannerControl();
 			
 		}
 		
 		void calcExperimentEnd(object sender, EventArgs e)
 		{
-			//dtpStartDateTime.Value = DateTime.Now.AddMinutes(Convert.ToInt32(tbStartGap.Text));
 			dtpEndDateTime.Value = dtpStartDateTime.Value.AddMinutes(Convert.ToInt32(tbRepetitions.Text)*
 			                                                         Convert.ToDouble(tbTimeGap.Text));
 		}
@@ -72,6 +66,150 @@ namespace ScaningManager
 		{
 			tbStartGap.Text = Convert.ToString(Convert.ToInt32((dtpStartDateTime.Value - DateTime.Now).Ticks/HunderdNano2Sec/60));
 			calcExperimentEnd(sender, e);
+		}
+		
+		
+		void BtnSelectOutputFolderClick(object sender, EventArgs e)
+		{
+			fbdSaveTo.RootFolder = System.Environment.SpecialFolder.MyComputer;
+			fbdSaveTo.ShowNewFolderButton = true;
+			fbdSaveTo.SelectedPath  =  System.Configuration.ConfigurationManager.AppSettings["ImagesFolder"];
+			if (fbdSaveTo.ShowDialog() == DialogResult.OK)
+			{
+				tbOutputPath.Text  =  fbdSaveTo.SelectedPath;
+			}
+		}
+		
+		
+		void MainFormLoad(object sender, EventArgs e)
+		{
+			dtpStartDateTime.Value = DateTime.Now;
+			calcExperimentEnd(this, new EventArgs());
+			tbOutputPath.Text =System.Configuration.ConfigurationManager.AppSettings["ImagesFolder"];
+			
+			// creating available scanners list
+			DeviceInfos DIs =  myScannerControl.GetConnectedDevices();
+			ScannersList = new DeviceInfo[DIs.Count];
+			for (int i=0;i<DIs.Count;i++)
+			{
+				object ind = i+1;
+				////System.Diagnostics.Debug.WriteLine(@"ScannersList[i]=DIs.get_Item(ref ind);");
+				ScannersList[i]=DIs.get_Item(ref ind);
+				object propname = "Name";
+				lbScannersList.Items.Add(ScannersList[i].Properties.get_Item(ref propname).get_Value()) ;
+			}
+			StatusLabel.Text = "";
+			if (System.Configuration.ConfigurationManager.AppSettings["EnvRoomExist"]=="1")
+			{
+				cbRecordEnvRoom.Checked = true;
+			}
+			else
+			{
+				cbRecordEnvRoom.Checked = false;
+			}
+			
+		}
+		
+		/// <summary>
+		/// Closing the application
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		void MainFormFormClosing(object sender, FormClosingEventArgs e)
+		{
+			if(e.CloseReason != CloseReason.WindowsShutDown)
+			{
+				DialogResult result = MessageBox.Show( @"Are you sure you want to exit?",
+				                                      @"Exit Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Warning  );
+				if ( result == DialogResult.No)
+				{
+					e.Cancel = true;
+				}
+				else
+				{
+					StatusLabel.Text = "please wait while scanners are reconnected";
+					this.Refresh();
+					EnableAllScanners();
+					if (scnMngrLog!= null)
+					{
+						scnMngrLog.LogInfo("Closing ScanningManager");
+					}
+				}
+			}
+			else
+			{
+				EnableAllScanners();
+				scnMngrLog.LogWarn("Windows shutdown. Closing ScanningManager");
+			}
+		}
+		
+		/// <summary>
+		/// A timer between scans
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		void ScanningTimerTick(object sender, EventArgs e)
+		{
+			ScanNow();
+			if (cbRecordEnvRoom.Checked)
+			{
+				LogEnvRoom();
+			}
+			NextScan = DateTime.Now.AddMinutes(Convert.ToInt32(tbTimeGap.Text));
+			UpdateExperimentProgress();
+			this.Refresh();
+		}
+		
+		/// <summary>
+		/// A timer to the first scan
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		void StartTimerTick(object sender, EventArgs e)
+		{
+			StartTimer.Stop();
+			ScanningTimer.Interval = Convert.ToInt32(Decimal.Floor(Convert.ToDecimal(tbTimeGap.Text)*60*1000));
+			ScanningTimer.Start();
+			
+			// progress bar init
+			NextScan = DateTime.Now.AddMinutes(Convert.ToInt32(tbTimeGap.Text));
+			lblTimeToNextScan.Text = @"Time To Next Scan: " + Seconds2hhmmssString((Convert.ToInt32(tbTimeGap.Text)*60));//(Convert.ToInt32(tbTimeGap.Text)*60).ToString() + " seconds";
+			progTimeToNextScan.Maximum = Convert.ToInt32(tbTimeGap.Text)*60;
+			progTimeToNextScan.Minimum = 0;
+			progTimeToNextScan.Value = 0;
+
+			
+			// start experiment
+			ScanningTimer.Interval = Convert.ToInt32(Decimal.Floor(Convert.ToDecimal(tbTimeGap.Text)*60*1000));
+			ScanNow();
+			if (cbRecordEnvRoom.Checked)
+			{
+				LogEnvRoom();
+			}
+			this.Refresh();
+			
+		}
+		
+		void CmbActiveScannersSelectedIndexChanged(object sender, EventArgs e)
+		{
+			picLastScan.Image = LastScans[cmbActiveScanners.SelectedIndex];
+		}
+		
+		
+		void UpdateProgressTimerTick(object sender, EventArgs e)
+		{
+			UpdateNextScanProgress();
+			UpdateExperimentProgress();
+			this.Refresh();
+		}
+		
+
+		void LbScannersListLeave(object sender, EventArgs e)
+		{
+			if (lbScannersList.SelectedItems.Count != 0)
+			{
+				btnScan.Enabled = true;
+			}
 		}
 		
 		/// <summary>
@@ -145,101 +283,35 @@ namespace ScaningManager
 		}
 		
 		/// <summary>
-		/// formating a date to string
-		/// </summary>
-		/// <param name="_DateTime"></param>
-		/// <returns>yyyyMMdd_HHmm</returns>
-		string GetDateString (DateTime _DateTime)
-		{
-			//return DateTime.Now.Year.ToString() + DateTime.Now.Month.ToString("D2")  + DateTime.Now.Day.ToString("D2") + DateTime.Now.Hour.ToString("D2") + DateTime.Now.Minute.ToString("D2") + DateTime.Now.Second.ToString("D2") ;
-			//return _DateTime.ToString("yyyyMMdd_HHmmss");
-			return _DateTime.ToString("yyyyMMdd_HHmm");
-		}
-		
-		
-
-		void BtnSelectOutputFolderClick(object sender, EventArgs e)
-		{
-			fbdSaveTo.RootFolder = System.Environment.SpecialFolder.MyComputer;
-			fbdSaveTo.ShowNewFolderButton = true;
-			fbdSaveTo.SelectedPath  =  System.Configuration.ConfigurationManager.AppSettings["ImagesFolder"];
-			if (fbdSaveTo.ShowDialog() == DialogResult.OK)
-			{
-				tbOutputPath.Text  =  fbdSaveTo.SelectedPath;
-			}
-		}
-		
-		
-		//private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-		
-		void MainFormLoad(object sender, EventArgs e)
-		{
-			dtpStartDateTime.Value = DateTime.Now;
-			calcExperimentEnd(this, new EventArgs());
-			tbOutputPath.Text =System.Configuration.ConfigurationManager.AppSettings["ImagesFolder"];
-			
-			DeviceInfos DIs =  myScannerControl.GetConnectedDevices();
-			////System.Diagnostics.Debug.WriteLine(@"ScannersList = new DeviceInfo[DIs.Count];");
-			ScannersList = new DeviceInfo[DIs.Count];
-			for (int i=0;i<DIs.Count;i++)
-			{
-				object ind = i+1;
-				////System.Diagnostics.Debug.WriteLine(@"ScannersList[i]=DIs.get_Item(ref ind);");
-				ScannersList[i]=DIs.get_Item(ref ind);
-				object propname = "Name";
-				////System.Diagnostics.Debug.WriteLine(@"lbScannersList.Items.Add(ScannersList[i].Properties.get_Item(ref propname).get_Value()) ;");
-				lbScannersList.Items.Add(ScannersList[i].Properties.get_Item(ref propname).get_Value()) ;
-			}
-			StatusLabel.Text = "";
-			
-		}
-		
-		/// <summary>
-		/// A timer between scans
+		/// Stops the experiment
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		void ScanningTimerTick(object sender, EventArgs e)
+		void BtnExitClick(object sender, EventArgs e)
 		{
-			ScanNow();
-			if (cbRecordEnvRoom.Checked)
+			DialogResult result = MessageBox.Show( @"Are you sure you want to stop scanning?",
+				                                   @"Stop Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Warning  );
+			if ( result == DialogResult.Yes)
 			{
-				LogEnvRoom();
+				StatusLabel.Text = "please wait while scanners are reconnected";
+				this.Refresh();
+				ScanningTimer.Stop();
+				StartTimer.Stop();
+				UpdateProgressTimer.Stop();
+				gbScanningConfiguration.Enabled   = true;
+				gbExperimentConfiguration.Enabled = true;
+				gbExperimentStatus.Enabled        = true;
+				EnableAllScanners();
+				string msgText = "Process was stopped by user at: " + DateTime.Now.ToString("dd/MM/yyyy HH:mm");
+				StatusLabel.Text = msgText;
+				scnMngrLog.LogInfo(msgText);
 			}
-			NextScan = DateTime.Now.AddMinutes(Convert.ToInt32(tbTimeGap.Text));
-			UpdateExperimentProgress();
-			this.Refresh();
 		}
-		
-		/// <summary>
-		/// A timer to the first scan
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		void StartTimerTick(object sender, EventArgs e)
-		{
-			StartTimer.Stop();
-			ScanningTimer.Interval = Convert.ToInt32(Decimal.Floor(Convert.ToDecimal(tbTimeGap.Text)*60*1000));
-			ScanningTimer.Start();
-			
-			// progress bar init
-			NextScan = DateTime.Now.AddMinutes(Convert.ToInt32(tbTimeGap.Text));
-			lblTimeToNextScan.Text = @"Time To Next Scan: " + Seconds2hhmmssString((Convert.ToInt32(tbTimeGap.Text)*60));//(Convert.ToInt32(tbTimeGap.Text)*60).ToString() + " seconds";
-			progTimeToNextScan.Maximum = Convert.ToInt32(tbTimeGap.Text)*60;
-			progTimeToNextScan.Minimum = 0;
-			progTimeToNextScan.Value = 0;
 
-			
-			// start experiment
-			ScanningTimer.Interval = Convert.ToInt32(Decimal.Floor(Convert.ToDecimal(tbTimeGap.Text)*60*1000));
-			ScanNow();
-			if (cbRecordEnvRoom.Checked)
-			{
-				LogEnvRoom();
-			}
-			this.Refresh();
-			
-		}
+		#endregion
+		
+		
+		#region scanners handeling
 		
 		/// <summary>
 		/// For each scanner in the list, takes an image
@@ -253,6 +325,9 @@ namespace ScaningManager
 			else
 			{
 				btnStop.Enabled = false;
+				gbExperimentOwner.Enabled = false;
+				
+				// scanning with all the scanners selected
 				for (int i=0 ; i<NumberOfScanners;i++)
 				{
 					try
@@ -281,6 +356,7 @@ namespace ScaningManager
 						}
 						
 					}
+					// error handling
 					catch (Exception e)
 					{
 						LastScans[i] = CreateDefaultPicture();
@@ -306,39 +382,10 @@ namespace ScaningManager
 					StatusLabel.Text = "";
 				}
 				btnStop.Enabled = true;
+				gbExperimentOwner.Enabled = true;
 			}
 		}
-		
-		/// <summary>
-		/// Stops the experiment
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		void BtnExitClick(object sender, EventArgs e)
-		{
-			DialogResult result = MessageBox.Show( @"Are you sure you want to stop scanning?",
-				                                   @"Stop Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Warning  );
-			if ( result == DialogResult.Yes)
-			{
-				//lbStatusBar.Text = "please wait while scanners are reconnected";
-				StatusLabel.Text = "please wait while scanners are reconnected";
-				this.Refresh();
-				ScanningTimer.Stop();
-				StartTimer.Stop();
-				UpdateProgressTimer.Stop();
-				gbScanningConfiguration.Enabled   = true;
-				gbExperimentConfiguration.Enabled = true;
-				gbExperimentStatus.Enabled        = true;
-				EnableAllScanners();
-				//lbStatusBar.Text = "Process was stopped by user at: " + DateTime.Now.ToString("dd/MM/yyyy HH:mm");
-				//if (StatusLabel.Text != "Experiment Ended")
-				//{
-				string msgText = "Process was stopped by user at: " + DateTime.Now.ToString("dd/MM/yyyy HH:mm");
-				StatusLabel.Text = msgText;
-				scnMngrLog.LogInfo(msgText);
-			}
-		}
-		
+						
 		/// <summary>
 		/// Enable all scanners
 		/// </summary>
@@ -365,20 +412,7 @@ namespace ScaningManager
 				}
 				
 			}
-		}
-		
-		
-		void CmbActiveScannersSelectedIndexChanged(object sender, EventArgs e)
-		{
-			picLastScan.Image = LastScans[cmbActiveScanners.SelectedIndex];
-		}
-		
-		void UpdateProgressTimerTick(object sender, EventArgs e)
-		{
-			UpdateNextScanProgress();
-			UpdateExperimentProgress();
-			this.Refresh();
-		}
+		}	
 		
 		/// <summary>
 		/// Updating the progress till next scan
@@ -424,6 +458,11 @@ namespace ScaningManager
 			}
 		}
 		
+		#endregion
+		
+		
+		#region utilities
+		
 		/// <summary>
 		/// Converts time in second to hours:minutes:seconds
 		/// </summary>
@@ -446,47 +485,68 @@ namespace ScaningManager
 			return TSstr;
 		}
 		
+		/// <summary>
+		/// formating a date to string
+		/// </summary>
+		/// <param name="_DateTime"></param>
+		/// <returns>yyyyMMdd_HHmm</returns>
+		string GetDateString (DateTime _DateTime)
+		{
+			return _DateTime.ToString("yyyyMMdd_HHmm");
+		}
 		
 		/// <summary>
-		/// Closing the application
+		/// Generates a default picture
 		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		void MainFormFormClosing(object sender, FormClosingEventArgs e)
+		/// <returns>Picture of Error Scanning</returns>
+		private Bitmap CreateDefaultPicture()
 		{
-			if(e.CloseReason != CloseReason.WindowsShutDown)
-			{
-				DialogResult result = MessageBox.Show( @"Are you sure you want to exit?",
-				                                      @"Exit Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Warning  );
-				if ( result == DialogResult.No)
-				{
-					e.Cancel = true;
-				}
-				else
-				{
-					StatusLabel.Text = "please wait while scanners are reconnected";
-					this.Refresh();
-					EnableAllScanners();
-					if (scnMngrLog!= null)
-					{
-						scnMngrLog.LogInfo("Closing ScanningManager");
-					}
-				}
-			}
-			else
-			{
-				EnableAllScanners();
-				scnMngrLog.LogWarn("Windows shutdown. Closing ScanningManager");
-			}
+			Bitmap B = new Bitmap(100,100);
+			Graphics g = Graphics.FromImage(B);
+			
+			// Create pen.
+			Pen blackPen = new Pen(Color.Red, 3);
+			
+			// Create points that define line.
+			Point point1 ;
+			Point point2;
+					
+			point1 = new Point(0, 0);
+			point2 = new Point(100, 100);
+			
+			// Draw line to screen.
+			g.DrawLine(blackPen, point1, point2);
+			point1 = new Point(100, 0);
+			point2 = new Point(0, 100);
+			
+			// Draw line to screen.
+			g.DrawLine(blackPen, point1, point2);
+			
+			// Create string to draw.
+			String drawString = "Error";
+			
+			// Create font and brush.
+			Font drawFont = new Font("Arial", 16);
+			SolidBrush drawBrush = new SolidBrush(Color.Black);
+			
+			// Create point for upper-left corner of drawing.
+			PointF drawPoint = new PointF(20, 20);
+			
+			// Draw string to screen.
+			g.DrawString(drawString, drawFont, drawBrush, drawPoint);
+			
+			drawString = "Scanning";
+			drawPoint = new PointF(5, 40);
+			g.DrawString(drawString, drawFont, drawBrush, drawPoint);
+
+			
+			return B;
 		}
 		
-		void LbScannersListLeave(object sender, EventArgs e)
-		{
-			if (lbScannersList.SelectedItems.Count != 0)
-			{
-				btnScan.Enabled = true;
-			}
-		}
+		#endregion
+		
+		
+		#region Logging
 		
 		/// <summary>
 		/// Initializes log file
@@ -556,53 +616,9 @@ namespace ScaningManager
             SR.Close();			
 		}
 		
-		/// <summary>
-		/// Generates a default picture
-		/// </summary>
-		/// <returns>Picture of Error Scanning</returns>
-		private Bitmap CreateDefaultPicture()
-		{
-			Bitmap B = new Bitmap(100,100);
-			Graphics g = Graphics.FromImage(B);
-			
-			// Create pen.
-			Pen blackPen = new Pen(Color.Red, 3);
-			
-			// Create points that define line.
-			Point point1 ;
-			Point point2;
-					
-			point1 = new Point(0, 0);
-			point2 = new Point(100, 100);
-			
-			// Draw line to screen.
-			g.DrawLine(blackPen, point1, point2);
-			point1 = new Point(100, 0);
-			point2 = new Point(0, 100);
-			
-			// Draw line to screen.
-			g.DrawLine(blackPen, point1, point2);
-			
-			// Create string to draw.
-			String drawString = "Error";
-			
-			// Create font and brush.
-			Font drawFont = new Font("Arial", 16);
-			SolidBrush drawBrush = new SolidBrush(Color.Black);
-			
-			// Create point for upper-left corner of drawing.
-			PointF drawPoint = new PointF(20, 20);
-			
-			// Draw string to screen.
-			g.DrawString(drawString, drawFont, drawBrush, drawPoint);
-			
-			drawString = "Scanning";
-			drawPoint = new PointF(5, 40);
-			g.DrawString(drawString, drawFont, drawBrush, drawPoint);
+		#endregion
+		
 
-			
-			return B;
-		}
 		
 		
 	}

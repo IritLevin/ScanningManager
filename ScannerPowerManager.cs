@@ -22,9 +22,6 @@ namespace ScaningManager
 	/// 
 	public class ScannerPowerManager
 	{
-//		public string ReturnedData=string.Empty;
-//		System.Diagnostics.Process myProcess = new System.Diagnostics.Process();
-//		Thread processThread;
 		List<ImagingDevice> ImagingDevicesList;
 		ScnDevcon Devcon;
 		string InstanceID;
@@ -32,25 +29,15 @@ namespace ScaningManager
 		int    PowerMethod;
 		ScnMngrLog scnMngrLog;
 		
-//		private EventLog ScnrPwrMngrEventLog;
-
 		
 		/// <summary>
 		/// Constructor. Gets Imaging Devices list.
 		/// </summary>
 		public ScannerPowerManager()
 		{
-//			ScnrPwrMngrEventLog = new EventLog();
-//			ScnrPwrMngrEventLog.Log =  "Application";
-//			ScnrPwrMngrEventLog.Source = "PowerManager";
-//			myProcess.StartInfo.FileName = System.Configuration.ConfigurationManager.AppSettings["DevconPath"];
-//			myProcess.StartInfo.UseShellExecute = false;
-//			myProcess.StartInfo.CreateNoWindow = true;
-//			myProcess.StartInfo.RedirectStandardOutput = true;
 			Devcon = new ScnDevcon();
 			ImagingDevicesList = Devcon.GetImagingDevices();
-			scnMngrLog = new ScnMngrLog();
-			//ImagingDevicesList = GetImagingDevices();			
+			scnMngrLog = new ScnMngrLog();	
 		}
 		
 		/// <summary>
@@ -64,63 +51,6 @@ namespace ScaningManager
 			GetPowerMethod();
 		}
 		
-//		/// <summary>
-//		/// Gets connected imaging devices.
-//		/// </summary>
-//		/// <returns>A list of ImagingDevice</returns>
-//		private List<ImagingDevice> GetImagingDevices()
-//		{
-//			processThread = new Thread(new ThreadStart(RunDevCon2FindImagingDevice));
-//			processThread.IsBackground = true;
-//			processThread.Start();
-//			processThread.Join();
-//			return AnalayzeReturnedData();
-//		}
-		
-//		/// <summary>
-//		/// A thread that runs devcon and finds all connected imaging devices
-//		/// </summary>
-//		void RunDevCon2FindImagingDevice()
-//		{
-//			string data;
-//			string allData= string.Empty ;
-//			
-//			myProcess.StartInfo.Arguments =  "hwids =Image";
-//			myProcess.Start();
-//			while ((data = myProcess.StandardOutput.ReadLine()) != null)
-//			{
-//				allData += ("\n" + data);
-//				//System.Threading.Thread.Sleep(100);
-//			}
-//			ReturnedData = allData;
-//		}
-		
-//		/// <summary>
-//		/// Analyzes the text returned from devcon 
-//		/// </summary>
-//		/// <returns>A list of ImagingDevice</returns>
-//		private List<ImagingDevice> AnalayzeReturnedData()
-//		{
-//			List<ImagingDevice> ImagingDeviceList = new List<ImagingDevice>();
-//			int NOR =  ReturnedData.Split('\n').Length ;		// Number Of Rows
-//			string[] ReturnedDataArray = new string[NOR];
-//			ImagingDevice tmpImagingDevice;
-//			
-//			ReturnedDataArray = ReturnedData.Split('\n');
-//			
-//			for (int i=0; i<NOR; i++)
-//			{
-//				if (ReturnedDataArray[i].IndexOf(@"Name:")>0)
-//				{
-//					tmpImagingDevice.InstanceID = ReturnedDataArray[i-1].Trim();
-//					tmpImagingDevice.Name = ReturnedDataArray[i].Trim().Remove(0,6);
-//					ImagingDeviceList.Add(tmpImagingDevice);
-//				}
-//				
-//			}
-//			
-//			return ImagingDeviceList;
-//		}
 		
 		/// <summary>
 		/// Turns off a specific scanner, by disabling the usb or by relay
@@ -152,13 +82,13 @@ namespace ScaningManager
 					if (Devcon.GetDeviceStatus(InstanceID)==(int)ConnectionStatus.Connected)
 					{
 						RT = false;		
-						string errMsg = "Scanner "+ScannerName+" was not disconnected. \nTrial: " + trial.ToString();
+						string errMsg = "Scanner "+ScannerName+" was not disconnected. Trial: " + trial.ToString();
 						scnMngrLog.LogWarn(errMsg);
 					}
 				}
 				catch(RelayException e)
 				{			
-					string errMsg = e.ToString() + " \nTrial: " + trial.ToString();
+					string errMsg = e.ToString() + Environment.NewLine + "Trial: " + trial.ToString();
 					scnMngrLog.LogError(errMsg);
 					RT = false;	
 				}
@@ -169,31 +99,6 @@ namespace ScaningManager
 				throw new ScnrPwrMngrException("Can not turn off scanner " + ScannerName);
 			}
 		}
-		
-//		/// <summary>
-//		/// Shutting off a specific scanner, by disbling the usb using devcon
-//		/// </summary>
-//		private void DevconDisable()
-//		{
-//			if (PowerMethod == "DEVCON")
-//			{
-//				ScannerName2InstanceId();
-//				processThread = new Thread(new ThreadStart(RunDevCon2DisableImagingDevice));
-//				processThread.IsBackground = true;
-//				processThread.Start();
-//				processThread.Join();
-//			}
-//		}
-//		
-//		/// <summary>
-//		/// A thread that runs devcon and disables a scanner
-//		/// </summary>
-//		private void RunDevCon2DisableImagingDevice()
-//		{
-//			myProcess.StartInfo.FileName = System.Configuration.ConfigurationManager.AppSettings["DevconPath"];
-//			myProcess.StartInfo.Arguments = @" disable " + InstanceID;
-//			myProcess.Start();
-//		}
 		
 		
 		/// <summary>
@@ -226,13 +131,13 @@ namespace ScaningManager
 					if (Devcon.GetDeviceStatus(InstanceID)!=(int)ConnectionStatus.Connected)
 					{
 						RT = false;		
-						string errMsg = "Scanner "+ScannerName+" was not connected. \nTrial: " + trial.ToString();
+						string errMsg = "Scanner "+ScannerName+" was not connected. Trial: " + trial.ToString();
 						scnMngrLog.LogWarn(errMsg);
 					}					
 				}
 				catch(RelayException e)
 				{			
-					string errMsg = e.ToString() + " \nTrial: " + trial.ToString();
+					string errMsg = e.ToString() + Environment.NewLine + "Trial: " + trial.ToString();
 					scnMngrLog.LogError(errMsg);
 				}
 				trial++;	
@@ -243,30 +148,6 @@ namespace ScaningManager
 			}
 		}
 		
-//		/// <summary>
-//		/// Turns on a specific scanner, by enbling the usb using devcon
-//		/// </summary>
-//		private void DevconEnable()
-//		{
-//			if (PowerMethod == "DEVCON")
-//			{
-//				ScannerName2InstanceId();
-//				processThread = new Thread(new ThreadStart(RunDevCon2EnableImagingDevice));
-//				processThread.IsBackground = true;
-//				processThread.Start();
-//				processThread.Join();
-//			}
-//		}
-//		
-//		/// <summary>
-//		/// A thread that runs devcon and enables a scanner
-//		/// </summary>
-//		private void RunDevCon2EnableImagingDevice()
-//		{
-//			myProcess.StartInfo.FileName = System.Configuration.ConfigurationManager.AppSettings["DevconPath"];
-//			myProcess.StartInfo.Arguments = @" enable " + InstanceID;
-//			myProcess.Start();
-//		}
 		
 		/// <summary>
 		/// Initializes InstanceId of a specific scanner
@@ -312,27 +193,6 @@ namespace ScaningManager
 			return index;
 		}
 		
-/*		/// <summary>
-		/// Checks if a certain scanner is connected
-		/// </summary>
-		/// <param name="_ScannerName">Name of scanner</param>
-		/// <returns>Scanner is connected or not</returns>
-		private bool ScannerExist()
-		{
-			bool scnrExist = false;
-			int  ScannerIndex;
-			List<ImagingDevice> currImagingDevicesList;
-			
-			currImagingDevicesList = Devcon.GetImagingDevices();
-			ScannerIndex = FindImagingDevice(currImagingDevicesList);
-			if (ScannerIndex!=-1)
-			{
-				scnrExist = true;
-			}
-			return scnrExist;
-			
-		}
-*/
 		
 		/// <summary>
 		/// Gets the relay name and the port of a specific scanner
@@ -394,7 +254,6 @@ namespace ScaningManager
 			string OpenCommand = "rk" + ScannerPowerPort.PortId.ToString();
 			
 			UsbRelayHardware.SendRelayCommand(OpenCommand);
-//			System.Diagnostics.Debug.WriteLine(UsbRelayHardware.ReadRelayStatus());
 
 			System.Threading.Thread.Sleep(500);
 			UsbRelayHardware.SendRelayCommand(CloseCommand);

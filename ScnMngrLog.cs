@@ -11,6 +11,7 @@ using System;
 using log4net;
 using log4net.Config;
 using System.Diagnostics;
+using System.IO;
 
 namespace ScaningManager
 {
@@ -22,6 +23,8 @@ namespace ScaningManager
 	{
 		private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 		private EventLog ScnMngrEventLog;
+		//----
+		private string FileName;
 		
 		public ScnMngrLog()
 		{
@@ -29,23 +32,39 @@ namespace ScaningManager
 			ScnMngrEventLog = new EventLog();
 			ScnMngrEventLog.Log =  "Application";
 			ScnMngrEventLog.Source = "ScannerMannager";
-			//<param name="ConversionPattern" value="%-5p%d{yyyy-MM-dd hh:mm:ss} - %m%n" />
+			//-----------
+			FileName = System.Configuration.ConfigurationManager.AppSettings["ImagesFolder"] + "\\LogFile.txt";
 		}		
 		
-		public ScnMngrLog(string FileName)
+		public ScnMngrLog(string FileName_)
 		{
 			log4net.Config.XmlConfigurator.Configure();
 			log4net.Appender.FileAppender FileApp = new log4net.Appender.FileAppender();
-			FileApp.File = FileName;
+			FileApp.File = FileName_;
 			
 			ScnMngrEventLog = new EventLog();
 			ScnMngrEventLog.Log =  "Application";
 			ScnMngrEventLog.Source = "ScannerMannager";
+			
+			//------------
+			FileName = FileName_;
 		}
-				
+			
+		public void LogLine(string _text)
+		{
+			string Msg = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss") + "  "+ _text;
+			System.IO.FileInfo LogFile = new FileInfo(FileName);
+			StreamWriter SR = new StreamWriter(FileName,true);
+			SR.WriteLine(Msg);
+            SR.Close();	
+		}
+		
 		public void LogInfo(string _text)
 		{
 			log.Info(_text);
+			//----------
+			string Msg = "- INFO  - " + _text;
+			LogLine(Msg);
 		}
 		public void LogInfo(string _text, System.SystemException e)
 		{
@@ -55,6 +74,9 @@ namespace ScaningManager
 		public void LogWarn(string _text)
 		{
 			log.Warn(_text);
+			//----------
+			string Msg = "- WARN  - " + _text;
+			LogLine(Msg);
 		}
 		public void LogWarn(string _text, System.SystemException e)
 		{
@@ -65,6 +87,9 @@ namespace ScaningManager
 		{
 			log.Error(_text);
 			ScnMngrEventLog.WriteEntry(_text, EventLogEntryType.Error);
+			//----------
+			string Msg = "- ERROR - " + _text;
+			LogLine(Msg);
 		}
 		public void LogError(string _text, System.SystemException e)
 		{
@@ -76,6 +101,9 @@ namespace ScaningManager
 		{
 			log.Fatal(_text);
 			ScnMngrEventLog.WriteEntry(_text, EventLogEntryType.Error);
+			//----------
+			string Msg = "- FATAL - " + _text;
+			LogLine(Msg);
 		}
 		public void LogFatal(string _text, System.SystemException e)
 		{

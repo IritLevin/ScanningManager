@@ -33,7 +33,6 @@ namespace ScaningManager
 		private DeviceInfo myDeviceInfo;
 		private int ScanningDPI;
 		Bitmap myBitmap = null;
-//		private EventLog ScnCtrlEventLog;
 		private ScnMngrLog scnMngrLog;
 		
 		/// <summary>
@@ -43,17 +42,14 @@ namespace ScaningManager
 		{
 			//System.Diagnostics.Debug.WriteLine(@"DeviceManager = new DeviceManager();");
 			DeviceManager = new DeviceManager();
-			//System.Diagnostics.Debug.WriteLine(@"DeviceInfoCollection = DeviceManager.DeviceInfos  ;");
 			DeviceInfoCollection = DeviceManager.DeviceInfos  ;
-			//System.Diagnostics.Debug.WriteLine(@"objScannerPowerManager = new ScannerPowerManager();");
 			objScannerPowerManager = new ScannerPowerManager();
-//			ScnCtrlEventLog = new EventLog();
-//			ScnCtrlEventLog.Log =  "Application";
-//			ScnCtrlEventLog.Source = "ScannerControl";
 			scnMngrLog = new ScnMngrLog();
 			
 		}
 
+		#region scanners list handling
+		
 		/// <summary>
 		/// Gets a list of scanners
 		/// </summary>
@@ -70,26 +66,25 @@ namespace ScaningManager
 		/// <param name="_ScanningDPI">scanning resolution</param>
 		public void SelectDevice(object _myDeviceInfo,int _ScanningDPI )
 		{
-			//System.Diagnostics.Debug.WriteLine(@"myDeviceInfo = (DeviceInfo)_myDeviceInfo;");
 			myDeviceInfo = (DeviceInfo)_myDeviceInfo;
 			ScanningDPI = _ScanningDPI;
 		}
 		
+		#endregion
+		
+		#region scanner handling
+	
 		/// <summary>
 		/// Connects to a specific scanner and initializes parameters
 		/// </summary>
 		/// <param name="_myDeviceInfo">selected scanner</param>
 		private void InitScanner(DeviceInfo _myDeviceInfo)
 		{	
-
 			object np = "Name";
-			//System.Diagnostics.Debug.WriteLine(@"ScannerName = (string)_myDeviceInfo.Properties.get_Item(ref np).get_Value();");
 			ScannerName = (string)_myDeviceInfo.Properties.get_Item(ref np).get_Value();
 			objScannerPowerManager.InitScannerPowerManager(ScannerName);
 			Enable();
-			//System.Diagnostics.Debug.WriteLine(@"Scanner = _myDeviceInfo.Connect();");
 			Scanner = _myDeviceInfo.Connect();
-			//System.Diagnostics.Debug.WriteLine(@"wiaItem = Scanner.Items[1];");
 			wiaItem = Scanner.Items[1];
 			SelectPicsProperties(ScanningDPI);	
 		}
@@ -118,7 +113,6 @@ namespace ScaningManager
 						File.Delete(currFilename);
 						
 						// transfer picture to our temporary file
-						//System.Diagnostics.Debug.WriteLine(@"ImageFile IF = (ImageFile)wiaItem.Transfer(FormatID.wiaFormatBMP);");
 						ImageFile IF = (ImageFile)wiaItem.Transfer(FormatID.wiaFormatBMP);
 						IF.SaveFile( currFilename);
 						// Create a Bitmap from the loaded file (Image.FromFile locks the file...)
@@ -138,7 +132,6 @@ namespace ScaningManager
 						
 						Disable();
 						RT = true;
-						//return myBitmap;
 					}
 					else
 					{
@@ -165,28 +158,9 @@ namespace ScaningManager
 				throw new ScnCtrlException("Unable to scan: " + ScannerName);
 			}
 			
-			return myBitmap;
-			//return new Bitmap(CreateDefaultPicture());
+			return myBitmap;				
+		}
 				
-		}
-		
-		/// <summary>
-		/// Sets picture properties
-		/// </summary>
-		/// <param name="DPI">resolution</param>
-		private void SelectPicsProperties(int DPI)
-		{
-			object hr = "Horizontal Resolution";
-			object vr = "Vertical Resolution";
-			object res = DPI;
-			
-			
-			Properties Prop = wiaItem.Properties;
-			
-			((WIA.Property)Prop.get_Item(ref hr)).set_Value(ref res);
-			((WIA.Property)Prop.get_Item(ref vr)).set_Value(ref res);
-		}
-		
 		/// <summary>
 		/// Disables the selected scanner
 		/// </summary>
@@ -212,6 +186,28 @@ namespace ScaningManager
 		{
 			objScannerPowerManager.EnableScanner();
 			System.Threading.Thread.Sleep(1000);
+		}
+		
+		#endregion
+		
+		
+		#region image handling
+		
+		/// <summary>
+		/// Sets picture properties
+		/// </summary>
+		/// <param name="DPI">resolution</param>
+		private void SelectPicsProperties(int DPI)
+		{
+			object hr = "Horizontal Resolution";
+			object vr = "Vertical Resolution";
+			object res = DPI;
+			
+			
+			Properties Prop = wiaItem.Properties;
+			
+			((WIA.Property)Prop.get_Item(ref hr)).set_Value(ref res);
+			((WIA.Property)Prop.get_Item(ref vr)).set_Value(ref res);
 		}
 		
 		/// <summary>
@@ -260,11 +256,12 @@ namespace ScaningManager
 			// Save the bitmap as a TIFF file with LZW compression.
 			myEncoderParameter = new EncoderParameter(
 				myEncoder,
-				(long)EncoderValue.CompressionNone);
+				(long)EncoderValue.CompressionLZW);
 			    myEncoderParameters.Param[0] = myEncoderParameter;
 			    myBitmap.Save(FileName, myImageCodecInfo, myEncoderParameters);			
 		}
 		
+		#endregion
 	}
 }
 
