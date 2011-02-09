@@ -36,6 +36,10 @@
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ItemGroup>
+    <Reference Include="log4net">
+      <HintPath>log4net.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
@@ -54,6 +58,7 @@
     <Compile Include="ScannerPowerManager.cs" />
     <Compile Include="ScannerPowerPort.cs" />
     <Compile Include="ScnMngrException.cs" />
+    <Compile Include="ScnMngrLog.cs" />
     <Compile Include="UsbRelay.cs" />
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>

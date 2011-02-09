@@ -18,6 +18,7 @@ using System.Configuration ;
 using System.Diagnostics;
 using WIA;
 
+
 namespace ScaningManager
 {
 	/// <summary>
@@ -33,6 +34,7 @@ namespace ScaningManager
 		int HunderdNano2Sec = 10000000;
 		DeviceInfo[] ScannersList;
 		private EventLog ScnMngrEventLog;
+		private ScnMngrLog scnMngrLog;
 		
 		public MainForm()
 		{
@@ -70,6 +72,8 @@ namespace ScaningManager
 		
 		void BtnScanClick(object sender, EventArgs e)
 		{
+			StartLogging();
+
 			// disabling the configuration and enabling the status group
 			// ----------------------------------------------------------
 			gbExperimentStatus.Enabled = true;
@@ -147,7 +151,7 @@ namespace ScaningManager
 		}
 		
 		
-		
+		//private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 		
 		void MainFormLoad(object sender, EventArgs e)
 		{
@@ -217,7 +221,7 @@ namespace ScaningManager
 						StatusLabel.Text = @"Scanning is in progress (scanner " + (i+1).ToString() + @"/" + NumberOfScanners.ToString() + ")";
 						this.Refresh();
 						LastScans[i]= Scanners[i].Scan(tbOutputPath.Text +  @"\" + tbFileName.Text + @"_" + i.ToString()+ @"_" + GetDateString(DateTime.Now)  +@".tif");
-									
+						
 						picLastScan.Image = LastScans[i];
 						//lbStatusBar.Text = "";
 						StatusLabel.Text = "";
@@ -225,13 +229,15 @@ namespace ScaningManager
 					catch (ScnMngrException e)
 					{
 						ScnMngrEventLog.WriteEntry(e.ToString(), EventLogEntryType.Error);
-						// LastScans[i]= null? empty bitmap?						
+						// LastScans[i]= null? empty bitmap?
+						scnMngrLog.LogError(e.ToString());
 					}
 					catch (Exception e)
 					{
 						System.Diagnostics.Debug.WriteLine(e.ToString());
 
 						ScnMngrEventLog.WriteEntry(e.ToString(), EventLogEntryType.Error);
+						scnMngrLog.LogError(e.ToString());
 						throw e;
 					}
 				}
@@ -242,7 +248,7 @@ namespace ScaningManager
 		void BtnExitClick(object sender, EventArgs e)
 		{
 			//lbStatusBar.Text = "please wait while scanners are reconnected";
-			StatusLabel.Text = "please wait while scanners are reconnected"; 
+			StatusLabel.Text = "please wait while scanners are reconnected";
 			this.Refresh();
 			ScanningTimer.Stop();
 			StartTimer.Stop();
@@ -254,7 +260,7 @@ namespace ScaningManager
 			//lbStatusBar.Text = "Process was stopped by user at: " + DateTime.Now.ToString("dd/MM/yyyy HH:mm");
 			//if (StatusLabel.Text != "Experiment Ended")
 			//{
-				StatusLabel.Text = "Process was stopped by user at: " + DateTime.Now.ToString("dd/MM/yyyy HH:mm");
+			StatusLabel.Text = "Process was stopped by user at: " + DateTime.Now.ToString("dd/MM/yyyy HH:mm");
 			//}
 		}
 		
@@ -272,8 +278,9 @@ namespace ScaningManager
 				catch (ScnMngrException e)
 				{
 					ScnMngrEventLog.WriteEntry(e.ToString(), EventLogEntryType.Error);
+					scnMngrLog.LogError(e.ToString());
 				}
-	
+				
 			}
 		}
 		
@@ -378,6 +385,18 @@ namespace ScaningManager
 			}
 		}
 		
-	
+		void StartLogging()
+		{
+			string LogFile = tbOutputPath.Text +  @"\LogFile.txt";
+			string ExpParameters;
+			
+			scnMngrLog = new ScnMngrLog(LogFile);			
+			ExpParameters = @"Repetitions: " + tbRepetitions.Text +
+				@"   Time Gap: " + tbTimeGap.Text +
+				@"   Start After: " + tbStartGap.Text;
+			scnMngrLog.LogInfo(ExpParameters);
+		}
+		
+		
 	}
 }

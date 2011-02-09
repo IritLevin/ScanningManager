@@ -34,6 +34,7 @@ namespace ScaningManager
 		private int ScanningDPI;
 		Bitmap myBitmap;
 		private EventLog ScnCtrlEventLog;
+		private ScnMngrLog scnMngrLog;
 		
 		/// <summary>
 		/// Constructor. 
@@ -49,6 +50,7 @@ namespace ScaningManager
 			ScnCtrlEventLog = new EventLog();
 			ScnCtrlEventLog.Log =  "Application";
 			ScnCtrlEventLog.Source = "ScannerControl";
+			scnMngrLog = new ScnMngrLog();
 			
 		}
 
@@ -147,6 +149,7 @@ namespace ScaningManager
 				{			
 					string errMsg = e.ToString() + " \nTrial: " + trial.ToString();
 					ScnCtrlEventLog.WriteEntry(errMsg, EventLogEntryType.Error);
+				
 					trial++;	
 				}
 				catch(System.Runtime.InteropServices.COMException e)
@@ -203,6 +206,7 @@ namespace ScaningManager
 				{			
 					string errMsg = e.ToString();// + " \nTrial: " + trial.ToString();
 					ScnCtrlEventLog.WriteEntry(errMsg, EventLogEntryType.Error);
+					scnMngrLog.LogError(errMsg);
 //					trial++;	
 				}
 //			}

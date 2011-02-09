@@ -27,6 +27,9 @@ namespace ScaningManager
 		Thread processThread;
 		List<ImagingDevice> ImagingDevicesList;
 		string InstanceID;
+		string ScannerName;
+		string PowerMethod;
+		
 		
 		private EventLog ScnrPwrMngrEventLog;
 
@@ -115,16 +118,21 @@ namespace ScaningManager
 			int MaxTrials = 3;
 			bool RT = false;
 			
+			ScannerName = _ScannerName;
+			GetPowerMethod();
+			
 			while (trial<=MaxTrials && !RT)
 			{
 				try
 				{
-					DevconDisable(_ScannerName);					
-					PowerOff(_ScannerName);
+					DevconDisable();					
+					PowerOff();
 					RT = true;
-					if (ScannerExist(_ScannerName))
+					if (ScannerExist() && PowerMethod!="NONE")
 					{
-						RT = false;			
+						RT = false;		
+						string errMsg = "Scanner is still on. \nTrial: " + trial.ToString();
+						ScnrPwrMngrEventLog.WriteEntry(errMsg, EventLogEntryType.Error);
 					}					
 				}
 				catch(RelayException e)
@@ -136,20 +144,23 @@ namespace ScaningManager
 			}
 			if (!RT)
 			{
-				throw new ScnrPwrMngrException("Can not disable scanner " + _ScannerName);
+				throw new ScnrPwrMngrException("Can not disable scanner " + ScannerName);
 			}
 		}
 		
 		/// <summary>
 		/// Shutting off a specific scanner, by disbling the usb using devcon
 		/// </summary>
-		public void DevconDisable(string _ScannerName)
+		private void DevconDisable()
 		{
-			ScannerName2InstanceId(_ScannerName);
-			processThread = new Thread(new ThreadStart(RunDevCon2DisableImagingDevice));
-			processThread.IsBackground = true;
-			processThread.Start();
-			processThread.Join();
+			if (PowerMethod == "DEVCON")
+			{
+				ScannerName2InstanceId();
+				processThread = new Thread(new ThreadStart(RunDevCon2DisableImagingDevice));
+				processThread.IsBackground = true;
+				processThread.Start();
+				processThread.Join();
+			}
 		}
 		
 		/// <summary>
@@ -173,16 +184,21 @@ namespace ScaningManager
 			int MaxTrials = 3;
 			bool RT = false;
 			
+			ScannerName = _ScannerName;
+			GetPowerMethod();
+			
 			while (trial<=MaxTrials && !RT)
 			{
 				try
 				{
-					PowerOn(_ScannerName);					
-					DevconEnable(_ScannerName);	
+					PowerOn();					
+					DevconEnable();	
 					RT = true;
-					if (!ScannerExist(_ScannerName))
+					if (!ScannerExist())
 					{
 						RT = false;
+						string errMsg = "Scanner is still off. \nTrial: " + trial.ToString();
+						ScnrPwrMngrEventLog.WriteEntry(errMsg, EventLogEntryType.Error);
 					}
 				}
 				catch(RelayException e)
@@ -194,20 +210,23 @@ namespace ScaningManager
 			}
 			if (!RT)
 			{
-				throw new ScnrPwrMngrException("Can not enable scanner " + _ScannerName);
+				throw new ScnrPwrMngrException("Can not enable scanner " + ScannerName);
 			}
 		}
 		
 		/// <summary>
 		/// Turns on a specific scanner, by enbling the usb using devcon
 		/// </summary>
-		public void DevconEnable(string _ScannerName)
+		private void DevconEnable()
 		{
-			ScannerName2InstanceId(_ScannerName);
-			processThread = new Thread(new ThreadStart(RunDevCon2EnableImagingDevice));
-			processThread.IsBackground = true;
-			processThread.Start();
-			processThread.Join();	
+			if (PowerMethod == "DEVCON")
+			{
+				ScannerName2InstanceId();
+				processThread = new Thread(new ThreadStart(RunDevCon2EnableImagingDevice));
+				processThread.IsBackground = true;
+				processThread.Start();
+				processThread.Join();
+			}
 		}
 		
 		/// <summary>
@@ -224,11 +243,12 @@ namespace ScaningManager
 		/// Initializes InstanceId of a specific scanner
 		/// </summary>
 		/// <param name="_ScannerName">The name of the scanner as it appears in the scanners list</param>
-		private void ScannerName2InstanceId(string _ScannerName)
+		private void ScannerName2InstanceId()
 		{
+			//int i = FindImagingDevice(ImagingDevicesList);
 			for (int i=0; i<ImagingDevicesList.Count; i++)
 			{
-				if (ImagingDevicesList[i].Name == _ScannerName)
+				if (ImagingDevicesList[i].Name == ScannerName)
 				{
 					InstanceID = @"@" + ImagingDevicesList[i].InstanceID;
 				}
@@ -240,14 +260,14 @@ namespace ScaningManager
 		/// </summary>
 		/// <param name="_ImagingDevicesList">List of imaging devices</param>
 		/// <param name="_ScannerName">name of a scanner</param>
-		/// <returns>The index of the scanner in the list</returns>
-		private int FindImagingDevice(List<ImagingDevice> _ImagingDevicesList, string _ScannerName)
+		/// <returns>The index of the scanner in the list. Return -1 if scanner is not on the list.</returns>
+		private int FindImagingDevice(List<ImagingDevice> _ImagingDevicesList)
 		{
 			int index=-1;
 			
 			for (int i=0; i<_ImagingDevicesList.Count; i++)
 			{
-				if (_ImagingDevicesList[i].Name == _ScannerName)
+				if (_ImagingDevicesList[i].Name == ScannerName)
 				{
 					index = i;
 				}
@@ -260,14 +280,14 @@ namespace ScaningManager
 		/// </summary>
 		/// <param name="_ScannerName">Name of scanner</param>
 		/// <returns>Scanner is connected or not</returns>
-		private bool ScannerExist(string _ScannerName)
+		private bool ScannerExist()
 		{
 			bool scnrExist = false;
 			int  ScannerIndex;
 			List<ImagingDevice> currImagingDevicesList;
 			
 			currImagingDevicesList = GetImagingDevices();
-			ScannerIndex = FindImagingDevice(currImagingDevicesList, _ScannerName);
+			ScannerIndex = FindImagingDevice(currImagingDevicesList);
 			if (ScannerIndex!=-1)
 			{
 				scnrExist = true;
@@ -281,7 +301,7 @@ namespace ScaningManager
 		/// </summary>
 		/// <param name="_ScannerName">The name of the scanner as it appears in the scanners list</param>
 		/// <returns>ScannerPowerPort</returns>
-		private ScannerPowerPort GetScannerPortRelay(string _ScannerName)
+		private ScannerPowerPort GetScannerPortRelay()
 		{
 			
 			string[] ScannerNames = ConfigurationManager.AppSettings["ScannerNames"].Split(',');
@@ -291,9 +311,32 @@ namespace ScaningManager
 			
 			System.Collections.ArrayList ScannerNamesList = new ArrayList();
 			ScannerNamesList.AddRange(ScannerNames);
-			int ind = ScannerNamesList.IndexOf(_ScannerName);
+			int ind = ScannerNamesList.IndexOf(ScannerName);
 			return new ScannerPowerPort(new UsbRelay(ScannerRelay[ind]),Convert.ToInt32(strScannerPowerPorts[ind]));
 			
+		}
+		
+		/// <summary>
+		/// Initializing the power managment method
+		/// </summary>
+		private void GetPowerMethod()
+		{
+			string[] ScannerNames = ConfigurationManager.AppSettings["ScannerNames"].Split(',');
+			string[] ScannerRelay = ConfigurationManager.AppSettings["ScannerRelay"].Split(',');
+			
+			System.Collections.ArrayList ScannerNamesList = new ArrayList();
+			ScannerNamesList.AddRange(ScannerNames);
+			int ind = ScannerNamesList.IndexOf(ScannerName);
+			string Method  = ScannerRelay[ind].ToUpper();
+			
+			if (Method == "DEVCON" || Method == "NONE")
+			{
+				PowerMethod = Method;
+			}
+			else
+			{
+				PowerMethod = "RELAY";
+			}
 		}
 		
 		
@@ -302,43 +345,47 @@ namespace ScaningManager
 		/// Shutting off the power of the scanner with the relay
 		/// </summary>
 		/// <param name="_ScannerName">The name of the scanner as it appears in the scanners list</param>
-		public void PowerOff(string _ScannerName)
+		private void PowerOff()
 		{
 			
-			
-			ScannerPowerPort ScannerPowerPort = GetScannerPortRelay(_ScannerName);
-			UsbRelay UsbRelayHardware = ScannerPowerPort.UsbRelayHardware;
-			string CloseCommand = "sk" + ScannerPowerPort.PortId.ToString();
-			string OpenCommand = "rk" + ScannerPowerPort.PortId.ToString();
-			
-			
-			UsbRelayHardware.SendRelayCommand(OpenCommand);
-			UsbRelayHardware.SendRelayCommand(CloseCommand);
-			System.Threading.Thread.Sleep(5000);
-			UsbRelayHardware.SendRelayCommand(OpenCommand);
-			System.Threading.Thread.Sleep(5000);	
+			if (PowerMethod == "RELAY")
+			{
+				ScannerPowerPort ScannerPowerPort = GetScannerPortRelay();
+				UsbRelay UsbRelayHardware = ScannerPowerPort.UsbRelayHardware;
+				string CloseCommand = "sk" + ScannerPowerPort.PortId.ToString();
+				string OpenCommand = "rk" + ScannerPowerPort.PortId.ToString();
+				
+				
+				UsbRelayHardware.SendRelayCommand(OpenCommand);
+				UsbRelayHardware.SendRelayCommand(CloseCommand);
+				System.Threading.Thread.Sleep(5000);
+				UsbRelayHardware.SendRelayCommand(OpenCommand);
+				System.Threading.Thread.Sleep(5000);
+			}
 			
 		}
 
 		
 		
 		/// <summary>
-		/// Turning on the power of the scanner with the relay
+		/// Turns on the power of the scanner with the relay
 		/// </summary>
 		/// <param name="_ScannerName">The name of the scanner as it appears in the scanners list</param>
-		public void PowerOn(string _ScannerName)
-		{
-
-			ScannerPowerPort ScannerPowerPort = GetScannerPortRelay(_ScannerName);
-			UsbRelay UsbRelayHardware = ScannerPowerPort.UsbRelayHardware;
-			string CloseCommand = "sk" + ScannerPowerPort.PortId.ToString();
-			string OpenCommand = "rk" + ScannerPowerPort.PortId.ToString();
-			
-			UsbRelayHardware.SendRelayCommand(OpenCommand);
-			UsbRelayHardware.SendRelayCommand(CloseCommand);
-			System.Threading.Thread.Sleep(500);
-			UsbRelayHardware.SendRelayCommand(OpenCommand);
-			System.Threading.Thread.Sleep(28000);
+		private void PowerOn()
+		{		
+			if (PowerMethod == "RELAY")
+			{
+				ScannerPowerPort ScannerPowerPort = GetScannerPortRelay();
+				UsbRelay UsbRelayHardware = ScannerPowerPort.UsbRelayHardware;
+				string CloseCommand = "sk" + ScannerPowerPort.PortId.ToString();
+				string OpenCommand = "rk" + ScannerPowerPort.PortId.ToString();
+				
+				UsbRelayHardware.SendRelayCommand(OpenCommand);
+				UsbRelayHardware.SendRelayCommand(CloseCommand);
+				System.Threading.Thread.Sleep(500);
+				UsbRelayHardware.SendRelayCommand(OpenCommand);
+				System.Threading.Thread.Sleep(28000);
+			}
 			
 			
 			
@@ -355,4 +402,5 @@ namespace ScaningManager
 		public string Name;
 		
 	}
+	
 }
