@@ -90,11 +90,12 @@ namespace ScaningManager
 					}	
 					
 					// Check if got disconnected
-					if (Devcon.GetDeviceStatus(InstanceID)==(int)ConnectionStatus.Connected)
+					if (Devcon.GetDeviceStatus(InstanceID)==(int)ConnectionStatus.Connected && PowerMethod!=(int)ScnPowerMethod.NONE)
 					{
 						RT = false;		
 						string errMsg = "Scanner "+ScannerName+" was not disconnected. Trial: " + trial.ToString();
 						scnMngrLog.LogWarn(errMsg);
+						System.Threading.Thread.Sleep(1000);
 					}
 				}
 				catch(RelayException e)
@@ -102,6 +103,7 @@ namespace ScaningManager
 					string errMsg = e.ToString() + Environment.NewLine + "Trial: " + trial.ToString();
 					scnMngrLog.LogError(errMsg);
 					RT = false;	
+					System.Threading.Thread.Sleep(1000);
 				}
 				trial++;
 			}
@@ -144,12 +146,15 @@ namespace ScaningManager
 						RT = false;		
 						string errMsg = "Scanner "+ScannerName+" was not connected. Trial: " + trial.ToString();
 						scnMngrLog.LogWarn(errMsg);
+						System.Threading.Thread.Sleep(1000);
 					}					
 				}
 				catch(RelayException e)
 				{			
 					string errMsg = e.ToString() + Environment.NewLine + "Trial: " + trial.ToString();
 					scnMngrLog.LogError(errMsg);
+					RT = false;
+					System.Threading.Thread.Sleep(1000);
 				}
 				trial++;	
 			}

@@ -151,14 +151,14 @@ namespace ScaningManager
 				}
 				catch(ScnrPwrMngrException e)
 				{			
-					string errMsg = e.ToString() + Environment.NewLine + " Trial: " + trial.ToString();
+					string errMsg = e.ToString() + Environment.NewLine + "   Trial: " + trial.ToString();
 					scnMngrLog.LogError(errMsg);
 				
 					trial++;	
 				}
 				catch(System.Runtime.InteropServices.COMException e)
 				{
-					string errMsg = e.ToString() + Environment.NewLine + " Trial: " + trial.ToString();
+					string errMsg = e.ToString() + Environment.NewLine + "   Trial: " + trial.ToString();
 					scnMngrLog.LogError(errMsg);
 					
 					trial++;

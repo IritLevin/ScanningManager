@@ -36,6 +36,7 @@ namespace ScaningManager
 		int HunderdNano2Sec = 10000000;
 		DeviceInfo[] ScannersList;
 		ScnMngrLog scnMngrLog=null;
+		ScnMngrLog EnvRoomLog=null;
 		string EnvLogFileName;
 		string LogFileName;
 		bool AllScannersEnabled = true;
@@ -156,11 +157,11 @@ namespace ScaningManager
 		/// <param name="e"></param>
 		void ScanningTimerTick(object sender, EventArgs e)
 		{
-			ScanNow();
 			if (cbRecordEnvRoom.Checked)
 			{
 				LogEnvRoom();
 			}
+			ScanNow();		
 			NextScan = DateTime.Now.AddMinutes(Convert.ToInt32(tbTimeGap.Text));
 			UpdateExperimentProgress();
 			this.Refresh();
@@ -187,11 +188,11 @@ namespace ScaningManager
 			
 			// start experiment
 			ScanningTimer.Interval = Convert.ToInt32(Decimal.Floor(Convert.ToDecimal(tbTimeGap.Text)*60*1000));
-			ScanNow();
 			if (cbRecordEnvRoom.Checked)
 			{
 				LogEnvRoom();
 			}
+			ScanNow();
 			this.Refresh();
 			
 		}
@@ -243,6 +244,7 @@ namespace ScaningManager
 			LastScans = new Bitmap[NumberOfScanners];
 			
 			ListBox.SelectedIndexCollection SelectedInd  = lbScannersList.SelectedIndices;
+			cmbActiveScanners.Items.Clear();
 			
 			for ( int i=0;i<NumberOfScanners;i++)
 			{
@@ -254,12 +256,12 @@ namespace ScaningManager
 			}
 			
 			// taking the fisrt picture
-			// -------------------------
-			ScanNow();
+			// -------------------------			
 			if (cbRecordEnvRoom.Checked)
 			{
 				LogEnvRoom();
 			}
+			ScanNow();
 			
 			// total experiment progress bar
 			progExperimentProgress.Minimum = 0;
@@ -560,7 +562,6 @@ namespace ScaningManager
 		/// </summary>
 		void StartLogging()
 		{
-			//string LogFile = tbOutputPath.Text +  @"\LogFile.txt";
 			string ExpParameters;
 			
 			scnMngrLog = new ScnMngrLog(LogFileName);	
@@ -588,18 +589,20 @@ namespace ScaningManager
 			EnvLogFileName = tbOutputPath.Text +  @"\EnvRoom.csv";	
 			EnvControlerIO CIO    = new EnvControlerIO();
 			List<EnvRoomControler.ControllerEntry> CE = CIO.GetCurentValues();
-			string EnvRoomMsg     = "Timestamp,\t";
+			string EnvRoomMsg     = ",\t";
 			
-			System.IO.FileInfo EnvRoomLogFile = new FileInfo(EnvLogFileName);
-			StreamWriter SR = new StreamWriter(EnvLogFileName,true);
+			EnvRoomLog = new ScnMngrLog(EnvLogFileName);
+//			System.IO.FileInfo EnvRoomLogFile = new FileInfo(EnvLogFileName);
+//			StreamWriter SR = new StreamWriter(EnvLogFileName,true);
 			
             for(int i=0;i<CE.Count;i++)
             {
                 EnvRoomMsg += CE[i].LongName + ",\t";
             }
             
-            SR.WriteLine(EnvRoomMsg);
-            SR.Close();			
+            EnvRoomLog.LogLine(EnvRoomMsg);
+//            SR.WriteLine(EnvRoomMsg);
+//            SR.Close();			
 		}
 		
 		/// <summary>
@@ -609,18 +612,19 @@ namespace ScaningManager
 		{
 			EnvControlerIO CIO = new EnvControlerIO();
 			List<EnvRoomControler.ControllerEntry> CE = CIO.GetCurentValues();
-			string EnvRoomMsg = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss") + ",\t";
+			string EnvRoomMsg = ",\t";//DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss") + ",\t";
 			
-			System.IO.FileInfo EnvRoomLogFile = new FileInfo(EnvLogFileName);
-			StreamWriter SR = new StreamWriter(EnvLogFileName,true);
+//			System.IO.FileInfo EnvRoomLogFile = new FileInfo(EnvLogFileName);
+//			StreamWriter SR = new StreamWriter(EnvLogFileName,true);
 			
             for(int i=0;i<CE.Count;i++)
             {
                 EnvRoomMsg += CE[i].EntryValue +",\t";
             }
             
-            SR.WriteLine(EnvRoomMsg);
-            SR.Close();			
+            EnvRoomLog.LogLine(EnvRoomMsg);
+//            SR.WriteLine(EnvRoomMsg);
+//            SR.Close();			
 		}
 		
 		#endregion

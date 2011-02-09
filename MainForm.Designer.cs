@@ -362,6 +362,7 @@ namespace ScaningManager
 			this.tbLog.Location = new System.Drawing.Point(7, 393);
 			this.tbLog.Multiline = true;
 			this.tbLog.Name = "tbLog";
+			this.tbLog.ReadOnly = true;
 			this.tbLog.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
 			this.tbLog.Size = new System.Drawing.Size(217, 75);
 			this.tbLog.TabIndex = 18;
