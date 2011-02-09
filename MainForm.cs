@@ -21,7 +21,7 @@ using EnvRoomControler;
 using EmailSMSSender;
 
 
-namespace ScaningManager
+namespace ScanningManager
 {
 	/// <summary>
 	/// Description of MainForm.

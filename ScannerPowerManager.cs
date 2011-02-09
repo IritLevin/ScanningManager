@@ -14,7 +14,7 @@ using System.Configuration;
 using System.Collections;
 using System.Diagnostics;
 
-namespace ScaningManager
+namespace ScanningManager
 {
 	/// <summary>
 	/// Controls the scanners connected
@@ -209,7 +209,15 @@ namespace ScaningManager
 			return index;
 		}
 		
-		
+		/// <summary>
+		/// returns Imaging Devices List
+		/// </summary>
+		/// <returns>ImagingDevices List</returns>
+		public List<ImagingDevice> GetImagingDevicesList()
+		{
+			return ImagingDevicesList;
+		}
+			
 		/// <summary>
 		/// Gets the relay name and the port of a specific scanner
 		/// </summary>
@@ -307,6 +315,9 @@ namespace ScaningManager
 	enum ScnPowerMethod {NONE, DEVCON, RELAY};
 	enum ConnectionStatus {Connected, Disconnected, Disabled};
 	
+	/// <summary>
+	/// Scanner name and instance ID
+	/// </summary>
 	public struct ImagingDevice
 	{
 		public string InstanceID;

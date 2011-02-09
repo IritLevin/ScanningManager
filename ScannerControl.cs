@@ -16,7 +16,7 @@ using WIA ;
 using System.Threading ;
 using System.Diagnostics;
 
-namespace ScaningManager
+namespace ScanningManager
 {
 	/// <summary>
 	/// Controls the scanning process

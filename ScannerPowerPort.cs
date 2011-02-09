@@ -9,10 +9,10 @@
 
 using System;
 
-namespace ScaningManager
+namespace ScanningManager
 {
 	/// <summary>
-	/// Description of ScannerPowerPort.
+	/// ADU USB Relay
 	/// </summary>
 	public struct ScannerPowerPort 
 	{
@@ -28,8 +28,8 @@ namespace ScaningManager
 		/// <summary>
 		/// ScannerPowerPort constructor
 		/// </summary>
-		/// <param name="_UsbRelayHardwareId"></param>
-		/// <param name="_PortId"></param>
+		/// <param name="_UsbRelayHardwareId">Hardware ID</param>
+		/// <param name="_PortId">Port number</param>
 		public ScannerPowerPort(UsbRelay _UsbRelayHardware,int _PortId)
 		{
 			UsbRelayHardware=_UsbRelayHardware;

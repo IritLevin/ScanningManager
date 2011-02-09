@@ -9,7 +9,7 @@
 
 using System;
 
-namespace ScaningManager
+namespace ScanningManager
 {
 	/// <summary>
 	/// A general exception thrown by ScanningManager application

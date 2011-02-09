@@ -13,10 +13,10 @@ using System;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace ScaningManager
+namespace ScanningManager
 {
 	/// <summary>
-	/// Description of UsbRelay.
+	/// Interacts with the ADU USB Relay
 	/// </summary>
 	public class UsbRelay
 	{

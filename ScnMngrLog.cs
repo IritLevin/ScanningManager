@@ -11,17 +11,20 @@ using System;
 using System.Diagnostics;
 using System.IO;
 
-namespace ScaningManager
+namespace ScanningManager
 {
 	
 	/// <summary>
-	/// Description of ScnMngrLog.
+	/// Logs messages from the application.
 	/// </summary>
 	public class ScnMngrLog
 	{
 		private EventLog ScnMngrEventLog;
 		private string FileName;
 		
+		/// <summary>
+		/// Constructor
+		/// </summary>
 		public ScnMngrLog()
 		{
 			ScnMngrEventLog = new EventLog();
@@ -31,6 +34,10 @@ namespace ScaningManager
 			FileName = "LogFile.txt";
 		}		
 		
+		/// <summary>
+		/// Constructor
+		/// </summary>
+		/// <param name="FileName_">Log file name</param>
 		public ScnMngrLog(string FileName_)
 		{
 			ScnMngrEventLog = new EventLog();

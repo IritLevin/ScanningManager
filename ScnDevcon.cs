@@ -14,7 +14,7 @@ using System.Configuration;
 using System.Collections;
 using System.Diagnostics;
 
-namespace ScaningManager
+namespace ScanningManager
 {
 	/// <summary>
 	/// This class replaces the computer device manager. 
@@ -158,8 +158,9 @@ namespace ScaningManager
 		}
 		
 		/// <summary>
-		/// Shutting off a specific scanner, by disbling the usb using devcon
+		/// Shutting off a specific scanner, by disabling the usb using devcon
 		/// </summary>
+		/// <param name="_InstanceID">Instance ID of the device</param>
 		public void DevconDisable(string _InstanceID)
 		{
 			//ScannerName2InstanceId();
@@ -182,8 +183,9 @@ namespace ScaningManager
 		}
 		
 		/// <summary>
-		/// Turns on a specific scanner, by enbling the usb using devcon
+		/// Turns on a specific scanner, by enabling the usb using devcon
 		/// </summary>
+		/// <param name="_InstanceID">Instance ID of the device</param>
 		public void DevconEnable(string _InstanceID)
 		{
 			InstanceID = _InstanceID;

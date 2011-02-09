@@ -7,7 +7,7 @@
  * To change this template use Tools | Options | Coding | Edit Standard Headers.
  */
  
-namespace ScaningManager
+namespace ScanningManager
 {
 	partial class MainForm
 	{
@@ -518,7 +518,7 @@ namespace ScaningManager
 			this.Controls.Add(this.gbExperimentConfiguration);
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.Name = "MainForm";
-			this.Text = "Scaning Manager";
+			this.Text = "Scanning Manager";
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainFormFormClosing);
 			this.Load += new System.EventHandler(this.MainFormLoad);
 			((System.ComponentModel.ISupportInitialize)(this.picLastScan)).EndInit();

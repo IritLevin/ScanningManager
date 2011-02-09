@@ -10,7 +10,7 @@
 using System;
 using System.Windows.Forms;
 
-namespace ScaningManager
+namespace ScanningManager
 {
 	/// <summary>
 	/// Class with program entry point.
