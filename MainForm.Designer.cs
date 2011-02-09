@@ -402,7 +402,7 @@ namespace ScaningManager
 			// 
 			this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
 									this.StatusLabel});
-			this.statusStrip1.Location = new System.Drawing.Point(0, 415);
+			this.statusStrip1.Location = new System.Drawing.Point(0, 579);
 			this.statusStrip1.Name = "statusStrip1";
 			this.statusStrip1.Size = new System.Drawing.Size(543, 22);
 			this.statusStrip1.SizingGrip = false;
@@ -418,13 +418,12 @@ namespace ScaningManager
 			// EventLogger
 			// 
 			this.EventLogger.SynchronizingObject = this;
-			   //this.EventLogger.EntryWritten += new System.Diagnostics.EntryWrittenEventHandler(this.EventLoggerEntryWritten);
 			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(543, 437);
+			this.ClientSize = new System.Drawing.Size(543, 601);
 			this.Controls.Add(this.statusStrip1);
 			this.Controls.Add(this.btnStop);
 			this.Controls.Add(this.gbExperimentStatus);

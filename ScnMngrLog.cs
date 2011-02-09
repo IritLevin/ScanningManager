@@ -10,6 +10,7 @@
 using System;
 using log4net;
 using log4net.Config;
+using System.Diagnostics;
 
 namespace ScaningManager
 {
@@ -20,10 +21,14 @@ namespace ScaningManager
 	public class ScnMngrLog
 	{
 		private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+		private EventLog ScnMngrEventLog;
 		
 		public ScnMngrLog()
 		{
 			log4net.Config.XmlConfigurator.Configure();
+			ScnMngrEventLog = new EventLog();
+			ScnMngrEventLog.Log =  "Application";
+			ScnMngrEventLog.Source = "ScannerMannager";
 			//<param name="ConversionPattern" value="%-5p%d{yyyy-MM-dd hh:mm:ss} - %m%n" />
 		}		
 		
@@ -55,19 +60,23 @@ namespace ScaningManager
 		public void LogError(string _text)
 		{
 			log.Error(_text);
+			ScnMngrEventLog.WriteEntry(_text, EventLogEntryType.Error);
 		}
 		public void LogError(string _text, System.SystemException e)
 		{
 			log.Error(_text, e);
+			ScnMngrEventLog.WriteEntry(_text, EventLogEntryType.Error);
 		}
 		
 		public void LogFatal(string _text)
 		{
 			log.Fatal(_text);
+			ScnMngrEventLog.WriteEntry(_text, EventLogEntryType.Error);
 		}
 		public void LogFatal(string _text, System.SystemException e)
 		{
 			log.Fatal(_text, e);
+			ScnMngrEventLog.WriteEntry(_text, EventLogEntryType.Error);
 		}
 	}
 }

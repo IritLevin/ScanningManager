@@ -33,7 +33,7 @@ namespace ScaningManager
 		private DeviceInfo myDeviceInfo;
 		private int ScanningDPI;
 		Bitmap myBitmap;
-		private EventLog ScnCtrlEventLog;
+//		private EventLog ScnCtrlEventLog;
 		private ScnMngrLog scnMngrLog;
 		
 		/// <summary>
@@ -47,9 +47,9 @@ namespace ScaningManager
 			DeviceInfoCollection = DeviceManager.DeviceInfos  ;
 			//System.Diagnostics.Debug.WriteLine(@"objScannerPowerManager = new ScannerPowerManager();");
 			objScannerPowerManager = new ScannerPowerManager();
-			ScnCtrlEventLog = new EventLog();
-			ScnCtrlEventLog.Log =  "Application";
-			ScnCtrlEventLog.Source = "ScannerControl";
+//			ScnCtrlEventLog = new EventLog();
+//			ScnCtrlEventLog.Log =  "Application";
+//			ScnCtrlEventLog.Source = "ScannerControl";
 			scnMngrLog = new ScnMngrLog();
 			
 		}
@@ -85,6 +85,7 @@ namespace ScaningManager
 			object np = "Name";
 			//System.Diagnostics.Debug.WriteLine(@"ScannerName = (string)_myDeviceInfo.Properties.get_Item(ref np).get_Value();");
 			ScannerName = (string)_myDeviceInfo.Properties.get_Item(ref np).get_Value();
+			objScannerPowerManager.InitScannerPowerManager(ScannerName);
 			Enable();
 			//System.Diagnostics.Debug.WriteLine(@"Scanner = _myDeviceInfo.Connect();");
 			Scanner = _myDeviceInfo.Connect();
@@ -136,7 +137,6 @@ namespace ScaningManager
 						
 						Disable();
 						RT = true;
-						
 						return myBitmap;
 					}
 					else
@@ -148,14 +148,15 @@ namespace ScaningManager
 				catch(ScnrPwrMngrException e)
 				{			
 					string errMsg = e.ToString() + " \nTrial: " + trial.ToString();
-					ScnCtrlEventLog.WriteEntry(errMsg, EventLogEntryType.Error);
+					scnMngrLog.LogError(errMsg);
 				
 					trial++;	
 				}
 				catch(System.Runtime.InteropServices.COMException e)
 				{
 					string errMsg = e.ToString() + " \nTrial: " + trial.ToString();
-					ScnCtrlEventLog.WriteEntry(errMsg, EventLogEntryType.Error);
+					scnMngrLog.LogError(errMsg);
+					
 					trial++;
 				}
 			}
@@ -189,27 +190,17 @@ namespace ScaningManager
 		/// </summary>
 		private void Disable()
 		{
-//			int trial = 1;
-//			int MaxTrials = 2;
-//			bool RT = false;
-//			
-//			while (trial<=MaxTrials && !RT)
-//			{
-				try
-				{
-					System.Threading.Thread.Sleep(10000);
-					objScannerPowerManager.DisableScanner(ScannerName);
-					System.Threading.Thread.Sleep(10000);
-//					RT = true;
-				}
-				catch(ScnrPwrMngrException e)
-				{			
-					string errMsg = e.ToString();// + " \nTrial: " + trial.ToString();
-					ScnCtrlEventLog.WriteEntry(errMsg, EventLogEntryType.Error);
-					scnMngrLog.LogError(errMsg);
-//					trial++;	
-				}
-//			}
+			try
+			{
+				System.Threading.Thread.Sleep(10000);
+				objScannerPowerManager.DisableScanner();
+				System.Threading.Thread.Sleep(1000);
+			}
+			catch(ScnrPwrMngrException e)
+			{			
+				string errMsg = e.ToString();
+				scnMngrLog.LogError(errMsg);
+			}
 				
 		}
 		
@@ -218,8 +209,8 @@ namespace ScaningManager
 		/// </summary>
 		public void Enable()
 		{
-			objScannerPowerManager.EnableScanner(ScannerName);
-			System.Threading.Thread.Sleep(10000);
+			objScannerPowerManager.EnableScanner();
+			System.Threading.Thread.Sleep(1000);
 		}
 		
 		/// <summary>

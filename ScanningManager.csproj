@@ -57,6 +57,7 @@
     <Compile Include="ScannerControl.cs" />
     <Compile Include="ScannerPowerManager.cs" />
     <Compile Include="ScannerPowerPort.cs" />
+    <Compile Include="ScnDevcon.cs" />
     <Compile Include="ScnMngrException.cs" />
     <Compile Include="ScnMngrLog.cs" />
     <Compile Include="UsbRelay.cs" />

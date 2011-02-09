@@ -61,7 +61,11 @@ namespace ScaningManager
 		{
 			CloseAduDevice(hAdu);
 		}
-				
+		
+		/// <summary>
+		/// Gives a command to the relay
+		/// </summary>
+		/// <param name="Command">command</param>
 		public void SendRelayCommand(string Command)
 		{
 			bool bRC = false;
@@ -77,7 +81,11 @@ namespace ScaningManager
 			
 		}
 		
-		public string ReadRealyStatus()
+		/// <summary>
+		/// Reads the status of all ports
+		/// </summary>
+		/// <returns>port 4321 0 open 1 closed</returns>
+		public string ReadRelayStatus()
 		{
 			bool bRC = false;
 			uint uiRead = 0;
@@ -86,6 +94,8 @@ namespace ScaningManager
 			
 			StringBuilder sBuffer = new StringBuilder(8);
  
+			SendRelayCommand("rpk");
+			
 			bRC = ReadAduDevice(hAdu, sBuffer, uiLength, out uiRead, 500);		
 			if (!bRC)
 			{
@@ -94,42 +104,7 @@ namespace ScaningManager
 			}
 			isClosed = sBuffer.ToString();
 			return isClosed;
-		}
-		
-		/*
-		public void VerifyExecution(string Command)
-		{
-			// checking if the command took place
-			string PortId = Command[2];   // the port is the 3rd char
-			string CheckStatusCommand = "rpk" + PortId; 
-			string CorrectStatus = string.Empty;
-			int    TimeOut = 1000;
-			int    TimePassed = 0;
-			
-			// "s" is closed and "1" is retured, "r" is open and "0" is returned
-			if (Command[0]=="s")
-			{
-				CorrectStatus = "1";
-			}
-			else
-			{
-				CorrectStatus = "0";
-			}
-			
-			SendRelayCommand(CheckStatusCommand);
-			while (ReadRealyStatus()!= CorrectStatus && TimePassed<TimeOut)
-			{
-				System.Threading.Thread.Sleep(10);
-				SendRelayCommand(CheckStatusCommand);				
-				TimePassed += 10;
-			}
-
-			if (TimePassed>=TimeOut)
-			{
-				throw new Exception("Port " + PortId + " doesn't function");
-			}
-		}*/
-		
+		}		
 
 	}
 }
