@@ -160,6 +160,7 @@ namespace ScaningManager
 				{			
 					string errMsg = e.ToString() + " \nTrial: " + trial.ToString();
 					scnMngrLog.LogError(errMsg);
+					RT = false;	
 				}
 				trial++;
 			}

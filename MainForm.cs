@@ -17,6 +17,8 @@ using System.Runtime.InteropServices;
 using System.Configuration ;
 using System.Diagnostics;
 using WIA;
+using EnvRoomControler;
+using EmailSMSSender;
 
 
 namespace ScaningManager
@@ -34,7 +36,8 @@ namespace ScaningManager
 		int HunderdNano2Sec = 10000000;
 		DeviceInfo[] ScannersList;
 //		private EventLog ScnMngrEventLog;
-		private ScnMngrLog scnMngrLog;
+		ScnMngrLog scnMngrLog=null;
+		string EnvLogFileName;
 		bool AllScannersEnabled = true;
 		
 		public MainForm()
@@ -108,6 +111,10 @@ namespace ScaningManager
 			// taking the fisrt picture
 			// -------------------------
 			ScanNow();
+			if (cbRecordEnvRoom.Checked)
+			{
+				LogEnvRoom();
+			}
 			
 			// total experiment progress bar
 			progExperimentProgress.Minimum = 0;
@@ -195,6 +202,10 @@ namespace ScaningManager
 		void ScanningTimerTick(object sender, EventArgs e)
 		{
 			ScanNow();
+			if (cbRecordEnvRoom.Checked)
+			{
+				LogEnvRoom();
+			}
 			NextScan = DateTime.Now.AddMinutes(Convert.ToInt32(tbTimeGap.Text));
 			UpdateExperimentProgress();
 			this.Refresh();
@@ -222,6 +233,10 @@ namespace ScaningManager
 			// start experiment
 			ScanningTimer.Interval = Convert.ToInt32(Decimal.Floor(Convert.ToDecimal(tbTimeGap.Text)*60*1000));
 			ScanNow();
+			if (cbRecordEnvRoom.Checked)
+			{
+				LogEnvRoom();
+			}
 			this.Refresh();
 			
 		}
@@ -244,21 +259,51 @@ namespace ScaningManager
 					{
 						StatusLabel.Text = @"Scanning is in progress (scanner " + (i+1).ToString() + @"/" + NumberOfScanners.ToString() + ")";
 						this.Refresh();
-						LastScans[i]= Scanners[i].Scan(tbOutputPath.Text +  @"\" + tbFileName.Text + @"_" + i.ToString()+ @"_" + GetDateString(DateTime.Now)  +@".tif");
-						
-						picLastScan.Image = LastScans[i];
-						//lbStatusBar.Text = "";
-						StatusLabel.Text = "";
+						LastScans[i]= Scanners[i].Scan(tbOutputPath.Text +  @"\" + tbFileName.Text + @"_" + i.ToString()+ @"_" + GetDateString(DateTime.Now)  +@".tif");												
 					}
 					catch (ScnMngrException e)
 					{
+						LastScans[i] = CreateDefaultPicture();
 						scnMngrLog.LogError(e.ToString());
+						string ErrMsg = DateTime.Now.ToString("dd/MM/yyyy HH:mm") +" - " +
+							e.Message.ToString() + 
+							Environment.NewLine + tbLog.Text;
+						tbLog.Text = ErrMsg;							
+						if (tbEmail.Text != string.Empty)
+						{
+							EmailSMSSender.Sender.SendEmail(tbEmail.Text, 
+							                                @"Scanning Manager Alert", 
+							                                ErrMsg);
+						}
+						if (tbPhoneNumber.Text != string.Empty)
+						{
+							EmailSMSSender.Sender.SendSMS(tbPhoneNumber.Text, "Error scanning");
+						}
+						
 					}
 					catch (Exception e)
 					{
+						LastScans[i] = CreateDefaultPicture();
 						scnMngrLog.LogFatal(e.ToString());
+						string ErrMsg = DateTime.Now.ToString("dd/MM/yyyy HH:mm") +" - " +
+							e.Message.ToString() + 
+							Environment.NewLine + tbLog.Text;
+						tbLog.Text = ErrMsg;
+						if (tbEmail.Text != string.Empty)
+						{
+							EmailSMSSender.Sender.SendEmail(tbEmail.Text, 
+							                                @"Scanning Manager FATAL ERROR", 
+							                                ErrMsg);
+						}
+						if (tbPhoneNumber.Text != string.Empty)
+						{
+							EmailSMSSender.Sender.SendSMS(tbPhoneNumber.Text, "Fatal Error");
+						}
 						throw e;
 					}
+					
+					picLastScan.Image = LastScans[i];
+					StatusLabel.Text = "";
 				}
 				btnStop.Enabled = true;
 			}
@@ -312,6 +357,11 @@ namespace ScaningManager
 				catch (ScnMngrException e)
 				{
 					scnMngrLog.LogError(e.ToString());
+					tbLog.Text = 
+							DateTime.Now.ToShortDateString() + " " +
+							DateTime.Now.ToShortTimeString() +" - " +
+							e.Message.ToString() + 
+							Environment.NewLine + tbLog.Text;
 				}
 				
 			}
@@ -417,6 +467,10 @@ namespace ScaningManager
 					StatusLabel.Text = "please wait while scanners are reconnected";
 					this.Refresh();
 					EnableAllScanners();
+					if (scnMngrLog!= null)
+					{
+						scnMngrLog.LogInfo("Closing ScanningManager");
+					}
 				}
 			}
 			else
@@ -442,13 +496,112 @@ namespace ScaningManager
 			string LogFile = tbOutputPath.Text +  @"\LogFile.txt";
 			string ExpParameters;
 			
-			scnMngrLog = new ScnMngrLog(LogFile);			
-			ExpParameters = @"ScanningManager version :"+
-				System.Reflection.Assembly.GetExecutingAssembly().GetName(false).Version.ToString() +
-				@"   Repetitions: " + tbRepetitions.Text +
-				@"   Time Gap: " + tbTimeGap.Text +
-				@"   Start After: " + tbStartGap.Text;
+			scnMngrLog = new ScnMngrLog(LogFile);	
+			scnMngrLog.LogInfo(@"ScanningManager version :"+
+				System.Reflection.Assembly.GetExecutingAssembly().GetName(false).Version.ToString());
+			ExpParameters = 
+				@"Repetitions: "    + tbRepetitions.Text +
+				@"   Time Gap: "    + tbTimeGap.Text +
+				@"   Start After: " + tbStartGap.Text +
+				@"   Start Time: "  + dtpStartDateTime.Text +
+				@"   End Time: "    + dtpEndDateTime.Text;
 			scnMngrLog.LogInfo(ExpParameters);
+			
+			if (cbRecordEnvRoom.Checked)
+			{
+				StartEnvRoomLogging();
+			}
+		}
+		
+		/// <summary>
+		/// Starts logging environmental room
+		/// </summary>
+		void StartEnvRoomLogging()
+		{
+			EnvLogFileName = tbOutputPath.Text +  @"\EnvRoom.csv";	
+			EnvControlerIO CIO    = new EnvControlerIO();
+			List<EnvRoomControler.ControllerEntry> CE = CIO.GetCurentValues();
+			string EnvRoomMsg     = "Timestamp,\t";
+			
+			System.IO.FileInfo EnvRoomLogFile = new FileInfo(EnvLogFileName);
+			StreamWriter SR = new StreamWriter(EnvLogFileName,true);
+			
+            for(int i=0;i<CE.Count;i++)
+            {
+                EnvRoomMsg += CE[i].LongName + ",\t";
+            }
+            
+            SR.WriteLine(EnvRoomMsg);
+            SR.Close();			
+		}
+		
+		/// <summary>
+		/// Writing to log a sample of Environmental Room 
+		/// </summary>
+		void LogEnvRoom()
+		{
+			EnvControlerIO CIO = new EnvControlerIO();
+			List<EnvRoomControler.ControllerEntry> CE = CIO.GetCurentValues();
+			string EnvRoomMsg = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss") + ",\t";
+			
+			System.IO.FileInfo EnvRoomLogFile = new FileInfo(EnvLogFileName);
+			StreamWriter SR = new StreamWriter(EnvLogFileName,true);
+			
+            for(int i=0;i<CE.Count;i++)
+            {
+                EnvRoomMsg += CE[i].EntryValue +",\t";
+            }
+            
+            SR.WriteLine(EnvRoomMsg);
+            SR.Close();			
+		}
+		
+		/// <summary>
+		/// Generates a default picture
+		/// </summary>
+		/// <returns>Picture of Error Scanning</returns>
+		private Bitmap CreateDefaultPicture()
+		{
+			Bitmap B = new Bitmap(100,100);
+			Graphics g = Graphics.FromImage(B);
+			
+			// Create pen.
+			Pen blackPen = new Pen(Color.Red, 3);
+			
+			// Create points that define line.
+			Point point1 ;
+			Point point2;
+					
+			point1 = new Point(0, 0);
+			point2 = new Point(100, 100);
+			
+			// Draw line to screen.
+			g.DrawLine(blackPen, point1, point2);
+			point1 = new Point(100, 0);
+			point2 = new Point(0, 100);
+			
+			// Draw line to screen.
+			g.DrawLine(blackPen, point1, point2);
+			
+			// Create string to draw.
+			String drawString = "Error";
+			
+			// Create font and brush.
+			Font drawFont = new Font("Arial", 16);
+			SolidBrush drawBrush = new SolidBrush(Color.Black);
+			
+			// Create point for upper-left corner of drawing.
+			PointF drawPoint = new PointF(20, 20);
+			
+			// Draw string to screen.
+			g.DrawString(drawString, drawFont, drawBrush, drawPoint);
+			
+			drawString = "Scanning";
+			drawPoint = new PointF(5, 40);
+			g.DrawString(drawString, drawFont, drawBrush, drawPoint);
+
+			
+			return B;
 		}
 		
 		

@@ -36,6 +36,14 @@
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ItemGroup>
+    <Reference Include="EmailSMSSender">
+      <HintPath>EmailSMSSender.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="EnvRoomControler">
+      <HintPath>EnvRoomControler.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
     <Reference Include="log4net">
       <HintPath>log4net.dll</HintPath>
       <SpecificVersion>False</SpecificVersion>

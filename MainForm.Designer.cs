@@ -45,6 +45,7 @@ namespace ScaningManager
 			this.tbOutputPath = new System.Windows.Forms.TextBox();
 			this.picLastScan = new System.Windows.Forms.PictureBox();
 			this.gbExperimentConfiguration = new System.Windows.Forms.GroupBox();
+			this.cbRecordEnvRoom = new System.Windows.Forms.CheckBox();
 			this.label8 = new System.Windows.Forms.Label();
 			this.tbStartGap = new System.Windows.Forms.TextBox();
 			this.lblStartGap = new System.Windows.Forms.Label();
@@ -66,6 +67,8 @@ namespace ScaningManager
 			this.ScanningTimer = new System.Windows.Forms.Timer(this.components);
 			this.StartTimer = new System.Windows.Forms.Timer(this.components);
 			this.gbExperimentStatus = new System.Windows.Forms.GroupBox();
+			this.tbLog = new System.Windows.Forms.TextBox();
+			this.lblLog = new System.Windows.Forms.Label();
 			this.progTimeToNextScan = new System.Windows.Forms.ProgressBar();
 			this.progExperimentProgress = new System.Windows.Forms.ProgressBar();
 			this.lblProgress = new System.Windows.Forms.Label();
@@ -77,12 +80,18 @@ namespace ScaningManager
 			this.statusStrip1 = new System.Windows.Forms.StatusStrip();
 			this.StatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
 			this.EventLogger = new System.Diagnostics.EventLog();
+			this.gbExperimentOwner = new System.Windows.Forms.GroupBox();
+			this.tbPhoneNumber = new System.Windows.Forms.TextBox();
+			this.tbEmail = new System.Windows.Forms.TextBox();
+			this.lblPhoneNumber = new System.Windows.Forms.Label();
+			this.lblEmail = new System.Windows.Forms.Label();
 			((System.ComponentModel.ISupportInitialize)(this.picLastScan)).BeginInit();
 			this.gbExperimentConfiguration.SuspendLayout();
 			this.gbScanningConfiguration.SuspendLayout();
 			this.gbExperimentStatus.SuspendLayout();
 			this.statusStrip1.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.EventLogger)).BeginInit();
+			this.gbExperimentOwner.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// btnScan
@@ -125,6 +134,7 @@ namespace ScaningManager
 			// 
 			// gbExperimentConfiguration
 			// 
+			this.gbExperimentConfiguration.Controls.Add(this.cbRecordEnvRoom);
 			this.gbExperimentConfiguration.Controls.Add(this.label8);
 			this.gbExperimentConfiguration.Controls.Add(this.tbStartGap);
 			this.gbExperimentConfiguration.Controls.Add(this.lblStartGap);
@@ -139,10 +149,21 @@ namespace ScaningManager
 			this.gbExperimentConfiguration.Controls.Add(this.label1);
 			this.gbExperimentConfiguration.Location = new System.Drawing.Point(12, 12);
 			this.gbExperimentConfiguration.Name = "gbExperimentConfiguration";
-			this.gbExperimentConfiguration.Size = new System.Drawing.Size(273, 159);
+			this.gbExperimentConfiguration.Size = new System.Drawing.Size(273, 186);
 			this.gbExperimentConfiguration.TabIndex = 9;
 			this.gbExperimentConfiguration.TabStop = false;
 			this.gbExperimentConfiguration.Text = "Experiment Configuration";
+			// 
+			// cbRecordEnvRoom
+			// 
+			this.cbRecordEnvRoom.Checked = true;
+			this.cbRecordEnvRoom.CheckState = System.Windows.Forms.CheckState.Checked;
+			this.cbRecordEnvRoom.Location = new System.Drawing.Point(7, 151);
+			this.cbRecordEnvRoom.Name = "cbRecordEnvRoom";
+			this.cbRecordEnvRoom.Size = new System.Drawing.Size(188, 24);
+			this.cbRecordEnvRoom.TabIndex = 17;
+			this.cbRecordEnvRoom.Text = "Record Environmental Room";
+			this.cbRecordEnvRoom.UseVisualStyleBackColor = true;
 			// 
 			// label8
 			// 
@@ -158,6 +179,7 @@ namespace ScaningManager
 			this.tbStartGap.Name = "tbStartGap";
 			this.tbStartGap.Size = new System.Drawing.Size(39, 20);
 			this.tbStartGap.TabIndex = 15;
+			this.tbStartGap.Text = "0";
 			this.tbStartGap.Leave += new System.EventHandler(this.calcStartEndTime);
 			// 
 			// lblStartGap
@@ -256,7 +278,7 @@ namespace ScaningManager
 			this.gbScanningConfiguration.Controls.Add(this.btnSelectOutputFolder);
 			this.gbScanningConfiguration.Controls.Add(this.btnScan);
 			this.gbScanningConfiguration.Controls.Add(this.tbOutputPath);
-			this.gbScanningConfiguration.Location = new System.Drawing.Point(12, 178);
+			this.gbScanningConfiguration.Location = new System.Drawing.Point(12, 205);
 			this.gbScanningConfiguration.Name = "gbScanningConfiguration";
 			this.gbScanningConfiguration.Size = new System.Drawing.Size(273, 204);
 			this.gbScanningConfiguration.TabIndex = 10;
@@ -317,6 +339,8 @@ namespace ScaningManager
 			// 
 			// gbExperimentStatus
 			// 
+			this.gbExperimentStatus.Controls.Add(this.tbLog);
+			this.gbExperimentStatus.Controls.Add(this.lblLog);
 			this.gbExperimentStatus.Controls.Add(this.progTimeToNextScan);
 			this.gbExperimentStatus.Controls.Add(this.progExperimentProgress);
 			this.gbExperimentStatus.Controls.Add(this.lblProgress);
@@ -327,10 +351,27 @@ namespace ScaningManager
 			this.gbExperimentStatus.Enabled = false;
 			this.gbExperimentStatus.Location = new System.Drawing.Point(291, 12);
 			this.gbExperimentStatus.Name = "gbExperimentStatus";
-			this.gbExperimentStatus.Size = new System.Drawing.Size(236, 370);
+			this.gbExperimentStatus.Size = new System.Drawing.Size(236, 480);
 			this.gbExperimentStatus.TabIndex = 11;
 			this.gbExperimentStatus.TabStop = false;
 			this.gbExperimentStatus.Text = "Experiment Status";
+			// 
+			// tbLog
+			// 
+			this.tbLog.Location = new System.Drawing.Point(7, 393);
+			this.tbLog.Multiline = true;
+			this.tbLog.Name = "tbLog";
+			this.tbLog.ScrollBars = System.Windows.Forms.ScrollBars.Horizontal;
+			this.tbLog.Size = new System.Drawing.Size(217, 75);
+			this.tbLog.TabIndex = 18;
+			// 
+			// lblLog
+			// 
+			this.lblLog.Location = new System.Drawing.Point(7, 372);
+			this.lblLog.Name = "lblLog";
+			this.lblLog.Size = new System.Drawing.Size(100, 23);
+			this.lblLog.TabIndex = 17;
+			this.lblLog.Text = "Log";
 			// 
 			// progTimeToNextScan
 			// 
@@ -385,7 +426,7 @@ namespace ScaningManager
 			// btnStop
 			// 
 			this.btnStop.Enabled = false;
-			this.btnStop.Location = new System.Drawing.Point(452, 386);
+			this.btnStop.Location = new System.Drawing.Point(452, 498);
 			this.btnStop.Name = "btnStop";
 			this.btnStop.Size = new System.Drawing.Size(75, 23);
 			this.btnStop.TabIndex = 12;
@@ -402,7 +443,7 @@ namespace ScaningManager
 			// 
 			this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
 									this.StatusLabel});
-			this.statusStrip1.Location = new System.Drawing.Point(0, 579);
+			this.statusStrip1.Location = new System.Drawing.Point(0, 531);
 			this.statusStrip1.Name = "statusStrip1";
 			this.statusStrip1.Size = new System.Drawing.Size(543, 22);
 			this.statusStrip1.SizingGrip = false;
@@ -419,11 +460,55 @@ namespace ScaningManager
 			// 
 			this.EventLogger.SynchronizingObject = this;
 			// 
+			// gbExperimentOwner
+			// 
+			this.gbExperimentOwner.Controls.Add(this.tbPhoneNumber);
+			this.gbExperimentOwner.Controls.Add(this.tbEmail);
+			this.gbExperimentOwner.Controls.Add(this.lblPhoneNumber);
+			this.gbExperimentOwner.Controls.Add(this.lblEmail);
+			this.gbExperimentOwner.Location = new System.Drawing.Point(12, 417);
+			this.gbExperimentOwner.Name = "gbExperimentOwner";
+			this.gbExperimentOwner.Size = new System.Drawing.Size(273, 75);
+			this.gbExperimentOwner.TabIndex = 15;
+			this.gbExperimentOwner.TabStop = false;
+			this.gbExperimentOwner.Text = "Experiment Owner";
+			// 
+			// tbPhoneNumber
+			// 
+			this.tbPhoneNumber.Location = new System.Drawing.Point(76, 43);
+			this.tbPhoneNumber.Name = "tbPhoneNumber";
+			this.tbPhoneNumber.Size = new System.Drawing.Size(188, 20);
+			this.tbPhoneNumber.TabIndex = 3;
+			// 
+			// tbEmail
+			// 
+			this.tbEmail.Location = new System.Drawing.Point(76, 17);
+			this.tbEmail.Name = "tbEmail";
+			this.tbEmail.Size = new System.Drawing.Size(188, 20);
+			this.tbEmail.TabIndex = 2;
+			// 
+			// lblPhoneNumber
+			// 
+			this.lblPhoneNumber.Location = new System.Drawing.Point(6, 43);
+			this.lblPhoneNumber.Name = "lblPhoneNumber";
+			this.lblPhoneNumber.Size = new System.Drawing.Size(64, 23);
+			this.lblPhoneNumber.TabIndex = 1;
+			this.lblPhoneNumber.Text = "Phone";
+			// 
+			// lblEmail
+			// 
+			this.lblEmail.Location = new System.Drawing.Point(7, 20);
+			this.lblEmail.Name = "lblEmail";
+			this.lblEmail.Size = new System.Drawing.Size(63, 23);
+			this.lblEmail.TabIndex = 0;
+			this.lblEmail.Text = "Email";
+			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(543, 601);
+			this.ClientSize = new System.Drawing.Size(543, 553);
+			this.Controls.Add(this.gbExperimentOwner);
 			this.Controls.Add(this.statusStrip1);
 			this.Controls.Add(this.btnStop);
 			this.Controls.Add(this.gbExperimentStatus);
@@ -440,12 +525,23 @@ namespace ScaningManager
 			this.gbScanningConfiguration.ResumeLayout(false);
 			this.gbScanningConfiguration.PerformLayout();
 			this.gbExperimentStatus.ResumeLayout(false);
+			this.gbExperimentStatus.PerformLayout();
 			this.statusStrip1.ResumeLayout(false);
 			this.statusStrip1.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.EventLogger)).EndInit();
+			this.gbExperimentOwner.ResumeLayout(false);
+			this.gbExperimentOwner.PerformLayout();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 		}
+		private System.Windows.Forms.TextBox tbLog;
+		private System.Windows.Forms.Label lblEmail;
+		private System.Windows.Forms.Label lblPhoneNumber;
+		private System.Windows.Forms.TextBox tbEmail;
+		private System.Windows.Forms.TextBox tbPhoneNumber;
+		private System.Windows.Forms.GroupBox gbExperimentOwner;
+		private System.Windows.Forms.Label lblLog;
+		private System.Windows.Forms.CheckBox cbRecordEnvRoom;
 		private System.Diagnostics.EventLog EventLogger;
 		private System.Windows.Forms.Label lblStartGap;
 		private System.Windows.Forms.TextBox tbStartGap;

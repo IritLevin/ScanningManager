@@ -32,7 +32,7 @@ namespace ScaningManager
 		private string ScannerName;
 		private DeviceInfo myDeviceInfo;
 		private int ScanningDPI;
-		Bitmap myBitmap;
+		Bitmap myBitmap = null;
 //		private EventLog ScnCtrlEventLog;
 		private ScnMngrLog scnMngrLog;
 		
@@ -103,8 +103,8 @@ namespace ScaningManager
 		{	
 			int trial = 1;
 			int MaxTrials = 2;
-			bool RT = false;
-			
+			bool RT = false;			
+				
 			while (trial<=MaxTrials && !RT)
 			{
 				try
@@ -134,37 +134,39 @@ namespace ScaningManager
 						// Don't leave junk behind!
 						File.Delete(currFilename);
 						
+						System.Threading.Thread.Sleep(10000);
 						
 						Disable();
 						RT = true;
-						return myBitmap;
+						//return myBitmap;
 					}
 					else
 					{
-						//throw new ApplicationException("Device should be Selected First");
 						throw new ScnCtrlException("Device should be Selected First");
 					}
 				}
 				catch(ScnrPwrMngrException e)
 				{			
-					string errMsg = e.ToString() + " \nTrial: " + trial.ToString();
+					string errMsg = e.ToString() + Environment.NewLine + " Trial: " + trial.ToString();
 					scnMngrLog.LogError(errMsg);
 				
 					trial++;	
 				}
 				catch(System.Runtime.InteropServices.COMException e)
 				{
-					string errMsg = e.ToString() + " \nTrial: " + trial.ToString();
+					string errMsg = e.ToString() + Environment.NewLine + " Trial: " + trial.ToString();
 					scnMngrLog.LogError(errMsg);
 					
 					trial++;
 				}
 			}
-//			if (!RT)
-//			{
-//				throw new ScnCtrlException("Unable to scan: " + ScannerName);
-//			}
-			return new Bitmap(CreateDefaultPicture());
+			if (!RT)
+			{
+				throw new ScnCtrlException("Unable to scan: " + ScannerName);
+			}
+			
+			return myBitmap;
+			//return new Bitmap(CreateDefaultPicture());
 				
 		}
 		
@@ -191,8 +193,7 @@ namespace ScaningManager
 		private void Disable()
 		{
 			try
-			{
-				System.Threading.Thread.Sleep(10000);
+			{			
 				objScannerPowerManager.DisableScanner();
 				System.Threading.Thread.Sleep(1000);
 			}
@@ -262,54 +263,6 @@ namespace ScaningManager
 				(long)EncoderValue.CompressionNone);
 			    myEncoderParameters.Param[0] = myEncoderParameter;
 			    myBitmap.Save(FileName, myImageCodecInfo, myEncoderParameters);			
-		}
-		
-		/// <summary>
-		/// Generates a default picture
-		/// </summary>
-		/// <returns>Picture of Error Scanning</returns>
-		private Bitmap CreateDefaultPicture()
-		{
-			Bitmap B = new Bitmap(100,100);
-			Graphics g = Graphics.FromImage(B);
-			
-			// Create pen.
-			Pen blackPen = new Pen(Color.Red, 3);
-			
-			// Create points that define line.
-			Point point1 ;
-			Point point2;
-					
-			point1 = new Point(0, 0);
-			point2 = new Point(100, 100);
-			
-			// Draw line to screen.
-			g.DrawLine(blackPen, point1, point2);
-			point1 = new Point(100, 0);
-			point2 = new Point(0, 100);
-			
-			// Draw line to screen.
-			g.DrawLine(blackPen, point1, point2);
-			
-			// Create string to draw.
-			String drawString = "Error";
-			
-			// Create font and brush.
-			Font drawFont = new Font("Arial", 16);
-			SolidBrush drawBrush = new SolidBrush(Color.Black);
-			
-			// Create point for upper-left corner of drawing.
-			PointF drawPoint = new PointF(20, 20);
-			
-			// Draw string to screen.
-			g.DrawString(drawString, drawFont, drawBrush, drawPoint);
-			
-			drawString = "Scanning";
-			drawPoint = new PointF(5, 40);
-			g.DrawString(drawString, drawFont, drawBrush, drawPoint);
-
-			
-			return B;
 		}
 		
 	}

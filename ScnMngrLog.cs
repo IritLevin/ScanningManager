@@ -37,6 +37,10 @@ namespace ScaningManager
 			log4net.Config.XmlConfigurator.Configure();
 			log4net.Appender.FileAppender FileApp = new log4net.Appender.FileAppender();
 			FileApp.File = FileName;
+			
+			ScnMngrEventLog = new EventLog();
+			ScnMngrEventLog.Log =  "Application";
+			ScnMngrEventLog.Source = "ScannerMannager";
 		}
 				
 		public void LogInfo(string _text)
