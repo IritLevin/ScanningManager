@@ -14,7 +14,6 @@ using System.IO;
 using System.Runtime.InteropServices;
 using WIA ;
 using System.Threading ;
-using System.Diagnostics;
 
 namespace ScaningManager
 {
@@ -32,23 +31,21 @@ namespace ScaningManager
 		private string ScannerName;
 		private DeviceInfo myDeviceInfo;
 		private int ScanningDPI;
-		Bitmap myBitmap;
-		private EventLog ScnCtrlEventLog;
+		private System.Drawing.Bitmap   _Bitmap;
+		private string _FileName;
+		
+		
 		
 		public ScannerControl()
 		{
 			DeviceManager = new DeviceManager();
 			DeviceInfoCollection = DeviceManager.DeviceInfos  ;
 			objScannerPowerManager = new ScannerPowerManager();
-			ScnCtrlEventLog = new EventLog();
-			ScnCtrlEventLog.Log =  "Application";
-			ScnCtrlEventLog.Source = "ScannerControl";
-			
 		}
 
 		public  DeviceInfos  GetConnectedDevices()
 		{
-			return DeviceInfoCollection ;			
+			return DeviceInfoCollection ;
 		}
 		
 		public void SelectDevice(object _myDeviceInfo,int _ScanningDPI )
@@ -59,23 +56,48 @@ namespace ScaningManager
 		
 		private void InitScanner(DeviceInfo _myDeviceInfo)
 		{
-			//try
-			//{
-				object np = "Name";
-				ScannerName = (string)_myDeviceInfo.Properties.get_Item(ref np).get_Value();
-				Enable();
-				Scanner = _myDeviceInfo.Connect();
-				wiaItem = Scanner.Items[1];
-				SelectPicsProperties(ScanningDPI);
-			//}
-			//catch(System.Runtime.InteropServices.COMException e)
-			//{
-					
-			//}
+			object np = "Name";
+			ScannerName = (string)_myDeviceInfo.Properties.get_Item(ref np).get_Value();
+			Enable();
+			Scanner = _myDeviceInfo.Connect();
+			wiaItem = Scanner.Items[1];
+			SelectPicsProperties(ScanningDPI);
 		}
 		
-		public Bitmap Scan(string FileName)
-		{	
+		public string FileName
+		{
+			get
+			{
+				return _FileName;	// return the value from privte field.
+			}
+			set
+			{
+				_FileName = value;	// save value into private field.
+			}
+		}
+
+		
+		public System.Drawing.Bitmap LastScanImage
+		{
+			get
+			{
+				return _Bitmap;	
+			}
+			set
+			{
+				_Bitmap = value;
+			}
+			
+		}
+		
+		public System.Drawing.Bitmap Scan()
+		{
+			return Scan(_FileName);
+		}
+	
+		
+		public System.Drawing.Bitmap Scan(string FileName)
+		{
 			InitScanner((DeviceInfo)myDeviceInfo);
 			
 			if (Scanner!=null)
@@ -106,12 +128,10 @@ namespace ScaningManager
 				
 				// KLUDGE: Must wrap the FromStream Image with a new Bitmap.
 				// Otherwise get OutOfMemoryException later when using ColorMatrix on it.
-				myBitmap = 	 new Bitmap(Image.FromStream(fs));
+				_Bitmap = 	 new Bitmap(Image.FromStream(fs));
 				fs.Close();
 				
-				//myBitmap.Save(FileName  ,ImageFormat.Tiff);
-				//myBitmap.Save(FileName+"bmp"  ,ImageFormat.Bmp);
-				SaveBitmapAsTiff(myBitmap, FileName);
+				_Bitmap.Save(FileName  ,ImageFormat.Tiff);
 
 				// Don't leave junk behind!
 				File.Delete(currFilename);
@@ -119,7 +139,7 @@ namespace ScaningManager
 				
 				Disable();
 				
-				return myBitmap;
+				return _Bitmap;
 			}
 			else
 			{
@@ -151,47 +171,6 @@ namespace ScaningManager
 			objScannerPowerManager.EnableScanner(ScannerName);
 			System.Threading.Thread.Sleep(10000);
 			
-		}
-		
-		private static ImageCodecInfo GetEncoderInfo(String mimeType)
-		{
-			int j;
-			ImageCodecInfo[] encoders;
-			encoders = ImageCodecInfo.GetImageEncoders();
-			for(j = 0; j < encoders.Length; ++j)
-			{
-				if(encoders[j].MimeType == mimeType)
-					return encoders[j];
-			}
-			return null;
-		}
-		
-		private void SaveBitmapAsTiff(Bitmap myBitmap, string FileName)
-		{
-			ImageCodecInfo    myImageCodecInfo;
-			Encoder           myEncoder;
-			EncoderParameter  myEncoderParameter;
-			EncoderParameters myEncoderParameters;
-			
-			// Get an ImageCodecInfo object that represents the TIFF codec.
-			myImageCodecInfo = GetEncoderInfo("image/tiff");
-			
-			// Create an Encoder object based on the GUID
-			// for the Compression parameter category.
-			myEncoder = Encoder.Compression;
-			
-			// Create an EncoderParameters object.
-			// An EncoderParameters object has an array of EncoderParameter
-			// objects. In this case, there is only one
-			// EncoderParameter object in the array.
-			myEncoderParameters = new EncoderParameters(1);
-			
-			// Save the bitmap as a TIFF file with LZW compression.
-			myEncoderParameter = new EncoderParameter(
-				myEncoder,
-				(long)EncoderValue.CompressionNone);
-			myEncoderParameters.Param[0] = myEncoderParameter;
-			myBitmap.Save(FileName, myImageCodecInfo, myEncoderParameters);			
 		}
 		
 	}

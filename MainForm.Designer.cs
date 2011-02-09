@@ -44,9 +44,6 @@ namespace ScaningManager
 			this.tbOutputPath = new System.Windows.Forms.TextBox();
 			this.picLastScan = new System.Windows.Forms.PictureBox();
 			this.gbExperimentConfiguration = new System.Windows.Forms.GroupBox();
-			this.label8 = new System.Windows.Forms.Label();
-			this.tbStartGap = new System.Windows.Forms.TextBox();
-			this.lblStartGap = new System.Windows.Forms.Label();
 			this.lMinutes = new System.Windows.Forms.Label();
 			this.tbTimeGap = new System.Windows.Forms.TextBox();
 			this.tbRepetitions = new System.Windows.Forms.TextBox();
@@ -73,21 +70,15 @@ namespace ScaningManager
 			this.lblTimeToNextScan = new System.Windows.Forms.Label();
 			this.btnStop = new System.Windows.Forms.Button();
 			this.UpdateProgressTimer = new System.Windows.Forms.Timer(this.components);
-			this.statusStrip1 = new System.Windows.Forms.StatusStrip();
-			this.StatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
-			this.EventLogger = new System.Diagnostics.EventLog();
 			((System.ComponentModel.ISupportInitialize)(this.picLastScan)).BeginInit();
 			this.gbExperimentConfiguration.SuspendLayout();
 			this.gbScanningConfiguration.SuspendLayout();
 			this.gbExperimentStatus.SuspendLayout();
-			this.statusStrip1.SuspendLayout();
-			((System.ComponentModel.ISupportInitialize)(this.EventLogger)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// btnScan
 			// 
-			this.btnScan.Enabled = false;
-			this.btnScan.Location = new System.Drawing.Point(76, 173);
+			this.btnScan.Location = new System.Drawing.Point(76, 203);
 			this.btnScan.Name = "btnScan";
 			this.btnScan.Size = new System.Drawing.Size(131, 25);
 			this.btnScan.TabIndex = 2;
@@ -97,7 +88,7 @@ namespace ScaningManager
 			// 
 			// btnSelectOutputFolder
 			// 
-			this.btnSelectOutputFolder.Location = new System.Drawing.Point(239, 17);
+			this.btnSelectOutputFolder.Location = new System.Drawing.Point(235, 17);
 			this.btnSelectOutputFolder.Name = "btnSelectOutputFolder";
 			this.btnSelectOutputFolder.Size = new System.Drawing.Size(25, 23);
 			this.btnSelectOutputFolder.TabIndex = 4;
@@ -124,9 +115,6 @@ namespace ScaningManager
 			// 
 			// gbExperimentConfiguration
 			// 
-			this.gbExperimentConfiguration.Controls.Add(this.label8);
-			this.gbExperimentConfiguration.Controls.Add(this.tbStartGap);
-			this.gbExperimentConfiguration.Controls.Add(this.lblStartGap);
 			this.gbExperimentConfiguration.Controls.Add(this.lMinutes);
 			this.gbExperimentConfiguration.Controls.Add(this.tbTimeGap);
 			this.gbExperimentConfiguration.Controls.Add(this.tbRepetitions);
@@ -138,35 +126,10 @@ namespace ScaningManager
 			this.gbExperimentConfiguration.Controls.Add(this.label1);
 			this.gbExperimentConfiguration.Location = new System.Drawing.Point(12, 12);
 			this.gbExperimentConfiguration.Name = "gbExperimentConfiguration";
-			this.gbExperimentConfiguration.Size = new System.Drawing.Size(273, 159);
+			this.gbExperimentConfiguration.Size = new System.Drawing.Size(273, 130);
 			this.gbExperimentConfiguration.TabIndex = 9;
 			this.gbExperimentConfiguration.TabStop = false;
 			this.gbExperimentConfiguration.Text = "Experiment Configuration";
-			// 
-			// label8
-			// 
-			this.label8.Location = new System.Drawing.Point(121, 77);
-			this.label8.Name = "label8";
-			this.label8.Size = new System.Drawing.Size(100, 17);
-			this.label8.TabIndex = 16;
-			this.label8.Text = "minutes";
-			// 
-			// tbStartGap
-			// 
-			this.tbStartGap.Location = new System.Drawing.Point(76, 73);
-			this.tbStartGap.Name = "tbStartGap";
-			this.tbStartGap.Size = new System.Drawing.Size(39, 20);
-			this.tbStartGap.TabIndex = 15;
-			this.tbStartGap.Text = "500";
-			this.tbStartGap.Leave += new System.EventHandler(this.calcStartEndTime);
-			// 
-			// lblStartGap
-			// 
-			this.lblStartGap.Location = new System.Drawing.Point(6, 77);
-			this.lblStartGap.Name = "lblStartGap";
-			this.lblStartGap.Size = new System.Drawing.Size(100, 18);
-			this.lblStartGap.TabIndex = 14;
-			this.lblStartGap.Text = "Start after";
 			// 
 			// lMinutes
 			// 
@@ -196,7 +159,7 @@ namespace ScaningManager
 			// 
 			// label4
 			// 
-			this.label4.Location = new System.Drawing.Point(6, 129);
+			this.label4.Location = new System.Drawing.Point(7, 103);
 			this.label4.Name = "label4";
 			this.label4.Size = new System.Drawing.Size(63, 23);
 			this.label4.TabIndex = 10;
@@ -207,14 +170,14 @@ namespace ScaningManager
 			this.dtpEndDateTime.CustomFormat = "dd/MM/yyyy HH:mm";
 			this.dtpEndDateTime.Enabled = false;
 			this.dtpEndDateTime.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-			this.dtpEndDateTime.Location = new System.Drawing.Point(76, 125);
+			this.dtpEndDateTime.Location = new System.Drawing.Point(76, 99);
 			this.dtpEndDateTime.Name = "dtpEndDateTime";
 			this.dtpEndDateTime.Size = new System.Drawing.Size(118, 20);
 			this.dtpEndDateTime.TabIndex = 9;
 			// 
 			// label3
 			// 
-			this.label3.Location = new System.Drawing.Point(6, 103);
+			this.label3.Location = new System.Drawing.Point(6, 77);
 			this.label3.Name = "label3";
 			this.label3.Size = new System.Drawing.Size(62, 23);
 			this.label3.TabIndex = 6;
@@ -224,11 +187,11 @@ namespace ScaningManager
 			// 
 			this.dtpStartDateTime.CustomFormat = "dd/MM/yyyy HH:mm";
 			this.dtpStartDateTime.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-			this.dtpStartDateTime.Location = new System.Drawing.Point(76, 99);
+			this.dtpStartDateTime.Location = new System.Drawing.Point(76, 73);
 			this.dtpStartDateTime.Name = "dtpStartDateTime";
 			this.dtpStartDateTime.Size = new System.Drawing.Size(118, 20);
 			this.dtpStartDateTime.TabIndex = 5;
-			this.dtpStartDateTime.Leave += new System.EventHandler(this.calcStartGapEndTime);
+			this.dtpStartDateTime.Leave += new System.EventHandler(this.calcExperimentEnd);
 			// 
 			// label2
 			// 
@@ -256,9 +219,9 @@ namespace ScaningManager
 			this.gbScanningConfiguration.Controls.Add(this.btnSelectOutputFolder);
 			this.gbScanningConfiguration.Controls.Add(this.btnScan);
 			this.gbScanningConfiguration.Controls.Add(this.tbOutputPath);
-			this.gbScanningConfiguration.Location = new System.Drawing.Point(12, 178);
+			this.gbScanningConfiguration.Location = new System.Drawing.Point(12, 148);
 			this.gbScanningConfiguration.Name = "gbScanningConfiguration";
-			this.gbScanningConfiguration.Size = new System.Drawing.Size(273, 204);
+			this.gbScanningConfiguration.Size = new System.Drawing.Size(273, 234);
 			this.gbScanningConfiguration.TabIndex = 10;
 			this.gbScanningConfiguration.TabStop = false;
 			this.gbScanningConfiguration.Text = "Scanning Configuration";
@@ -273,11 +236,10 @@ namespace ScaningManager
 			this.lbScannersList.Size = new System.Drawing.Size(188, 95);
 			this.lbScannersList.TabIndex = 11;
 			this.lbScannersList.ValueMember = "Name";
-			this.lbScannersList.Leave += new System.EventHandler(this.LbScannersListLeave);
 			// 
 			// label7
 			// 
-			this.label7.Location = new System.Drawing.Point(6, 71);
+			this.label7.Location = new System.Drawing.Point(7, 71);
 			this.label7.Name = "label7";
 			this.label7.Size = new System.Drawing.Size(59, 23);
 			this.label7.TabIndex = 10;
@@ -285,7 +247,7 @@ namespace ScaningManager
 			// 
 			// label6
 			// 
-			this.label6.Location = new System.Drawing.Point(7, 48);
+			this.label6.Location = new System.Drawing.Point(6, 48);
 			this.label6.Name = "label6";
 			this.label6.Size = new System.Drawing.Size(60, 23);
 			this.label6.TabIndex = 9;
@@ -293,7 +255,7 @@ namespace ScaningManager
 			// 
 			// tbFileName
 			// 
-			this.tbFileName.Location = new System.Drawing.Point(76, 45);
+			this.tbFileName.Location = new System.Drawing.Point(76, 46);
 			this.tbFileName.Name = "tbFileName";
 			this.tbFileName.Size = new System.Drawing.Size(158, 20);
 			this.tbFileName.TabIndex = 8;
@@ -301,7 +263,7 @@ namespace ScaningManager
 			// 
 			// label5
 			// 
-			this.label5.Location = new System.Drawing.Point(6, 23);
+			this.label5.Location = new System.Drawing.Point(6, 22);
 			this.label5.Name = "label5";
 			this.label5.Size = new System.Drawing.Size(60, 23);
 			this.label5.TabIndex = 6;
@@ -352,12 +314,11 @@ namespace ScaningManager
 			this.lblProgress.Name = "lblProgress";
 			this.lblProgress.Size = new System.Drawing.Size(218, 23);
 			this.lblProgress.TabIndex = 14;
-			this.lblProgress.Text = "Time Left:";
+			this.lblProgress.Text = "Pictures Taken";
 			// 
 			// cmbActiveScanners
 			// 
 			this.cmbActiveScanners.DisplayMember = "Name";
-			this.cmbActiveScanners.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.cmbActiveScanners.FormattingEnabled = true;
 			this.cmbActiveScanners.Location = new System.Drawing.Point(6, 155);
 			this.cmbActiveScanners.Name = "cmbActiveScanners";
@@ -384,7 +345,6 @@ namespace ScaningManager
 			// 
 			// btnStop
 			// 
-			this.btnStop.Enabled = false;
 			this.btnStop.Location = new System.Drawing.Point(452, 386);
 			this.btnStop.Name = "btnStop";
 			this.btnStop.Size = new System.Drawing.Size(75, 23);
@@ -398,33 +358,11 @@ namespace ScaningManager
 			this.UpdateProgressTimer.Interval = 10000;
 			this.UpdateProgressTimer.Tick += new System.EventHandler(this.UpdateProgressTimerTick);
 			// 
-			// statusStrip1
-			// 
-			this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-									this.StatusLabel});
-			this.statusStrip1.Location = new System.Drawing.Point(0, 415);
-			this.statusStrip1.Name = "statusStrip1";
-			this.statusStrip1.Size = new System.Drawing.Size(543, 22);
-			this.statusStrip1.SizingGrip = false;
-			this.statusStrip1.TabIndex = 14;
-			this.statusStrip1.Text = "statusStrip1";
-			// 
-			// StatusLabel
-			// 
-			this.StatusLabel.Name = "StatusLabel";
-			this.StatusLabel.Size = new System.Drawing.Size(132, 17);
-			this.StatusLabel.Text = "Reading scanners list        ";
-			// 
-			// EventLogger
-			// 
-			this.EventLogger.SynchronizingObject = this;
-			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(543, 437);
-			this.Controls.Add(this.statusStrip1);
+			this.ClientSize = new System.Drawing.Size(543, 430);
 			this.Controls.Add(this.btnStop);
 			this.Controls.Add(this.gbExperimentStatus);
 			this.Controls.Add(this.gbScanningConfiguration);
@@ -439,18 +377,8 @@ namespace ScaningManager
 			this.gbScanningConfiguration.ResumeLayout(false);
 			this.gbScanningConfiguration.PerformLayout();
 			this.gbExperimentStatus.ResumeLayout(false);
-			this.statusStrip1.ResumeLayout(false);
-			this.statusStrip1.PerformLayout();
-			((System.ComponentModel.ISupportInitialize)(this.EventLogger)).EndInit();
 			this.ResumeLayout(false);
-			this.PerformLayout();
 		}
-		private System.Diagnostics.EventLog EventLogger;
-		private System.Windows.Forms.Label lblStartGap;
-		private System.Windows.Forms.TextBox tbStartGap;
-		private System.Windows.Forms.Label label8;
-		private System.Windows.Forms.ToolStripStatusLabel StatusLabel;
-		private System.Windows.Forms.StatusStrip statusStrip1;
 		private System.Windows.Forms.Timer UpdateProgressTimer;
 		
 		private System.Windows.Forms.ProgressBar progExperimentProgress;
