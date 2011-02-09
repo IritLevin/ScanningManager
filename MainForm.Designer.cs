@@ -122,6 +122,7 @@ namespace ScaningManager
 			this.tbOutputPath.Size = new System.Drawing.Size(158, 20);
 			this.tbOutputPath.TabIndex = 5;
 			this.tbOutputPath.Text = "D:\\Irit";
+			this.tbOutputPath.TextChanged += new System.EventHandler(this.TbOutputPathTextChanged);
 			// 
 			// picLastScan
 			// 

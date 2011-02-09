@@ -25,18 +25,18 @@ namespace ScaningManager
 		public string ReturnedData=string.Empty;
 		System.Diagnostics.Process myProcess = new System.Diagnostics.Process();
 		Thread processThread;
-		//List<ImagingDevice> ImagingDevicesList;
 		string InstanceID;
-		//string ScannerName;
 		
 		
+		/// <summary>
+		/// Constructor
+		/// </summary>
 		public ScnDevcon()
 		{
 			myProcess.StartInfo.FileName = System.Configuration.ConfigurationManager.AppSettings["DevconPath"];
 			myProcess.StartInfo.UseShellExecute = false;
 			myProcess.StartInfo.CreateNoWindow = true;
 			myProcess.StartInfo.RedirectStandardOutput = true;
-//			ImagingDevicesList = GetImagingDevices();
 		}
 		
 		/// <summary>

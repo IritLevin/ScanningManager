@@ -46,6 +46,10 @@ namespace ScaningManager
 		private IntPtr hAdu;
 		private string UsbRelayHardwareId;
 		
+		/// <summary>
+		/// Constructor. Opens Relay
+		/// </summary>
+		/// <param name="_UsbRelayHardwareId">Relay hardware ID</param>
 		public UsbRelay(string _UsbRelayHardwareId)
 		{
 			UsbRelayHardwareId = _UsbRelayHardwareId;
@@ -57,6 +61,10 @@ namespace ScaningManager
 			}
 		}
 		
+		/// <summary>
+		/// Destructor. Closes relay.
+		/// </summary>
+		/// <param name="Command"></param>
 		~UsbRelay()
 		{
 			CloseAduDevice(hAdu);

@@ -37,6 +37,7 @@ namespace ScaningManager
 		DeviceInfo[] ScannersList;
 		ScnMngrLog scnMngrLog=null;
 		string EnvLogFileName;
+		string LogFileName;
 		bool AllScannersEnabled = true;
 		
 		#region Form methods
@@ -46,7 +47,8 @@ namespace ScaningManager
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			InitializeComponent();
-			myScannerControl = new ScannerControl();
+			LogFileName = System.Configuration.ConfigurationManager.AppSettings["ImagesFolder"] + @"\LogFile.txt";
+			myScannerControl = new ScannerControl(LogFileName);
 			
 		}
 		
@@ -80,7 +82,11 @@ namespace ScaningManager
 			}
 		}
 		
-		
+		void TbOutputPathTextChanged(object sender, EventArgs e)
+		{
+			LogFileName = tbOutputPath.Text + @"\LogFile.txt";
+		}
+				
 		void MainFormLoad(object sender, EventArgs e)
 		{
 			dtpStartDateTime.Value = DateTime.Now;
@@ -212,6 +218,7 @@ namespace ScaningManager
 			}
 		}
 		
+				
 		/// <summary>
 		/// starts the serial scanning by the parameters given for start time, time gap and number for iterations
 		/// </summary>
@@ -239,7 +246,7 @@ namespace ScaningManager
 			
 			for ( int i=0;i<NumberOfScanners;i++)
 			{
-				Scanners[i] = new ScannerControl();
+				Scanners[i] = new ScannerControl(LogFileName);
 				Scanners[i].SelectDevice( ScannersList[SelectedInd[i]],Convert.ToInt32(ConfigurationManager.AppSettings["ScanningDPI"]));
 				
 				cmbActiveScanners.Items.Add(lbScannersList.SelectedItems[i]);
@@ -553,10 +560,10 @@ namespace ScaningManager
 		/// </summary>
 		void StartLogging()
 		{
-			string LogFile = tbOutputPath.Text +  @"\LogFile.txt";
+			//string LogFile = tbOutputPath.Text +  @"\LogFile.txt";
 			string ExpParameters;
 			
-			scnMngrLog = new ScnMngrLog(LogFile);	
+			scnMngrLog = new ScnMngrLog(LogFileName);	
 			scnMngrLog.LogInfo(@"ScanningManager version :"+
 				System.Reflection.Assembly.GetExecutingAssembly().GetName(false).Version.ToString());
 			ExpParameters = 
@@ -617,9 +624,6 @@ namespace ScaningManager
 		}
 		
 		#endregion
-		
-
-		
 		
 	}
 }

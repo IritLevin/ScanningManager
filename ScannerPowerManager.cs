@@ -39,6 +39,17 @@ namespace ScaningManager
 			ImagingDevicesList = Devcon.GetImagingDevices();
 			scnMngrLog = new ScnMngrLog();	
 		}
+
+		/// <summary>
+		/// Constructor. Gets Imaging Devices list.
+		/// </summary>
+		/// <param name="_LogFileName">Log file name</param>
+		public ScannerPowerManager(string _LogFileName)
+		{
+			Devcon = new ScnDevcon();
+			ImagingDevicesList = Devcon.GetImagingDevices();
+			scnMngrLog = new ScnMngrLog(_LogFileName);	
+		}
 		
 		/// <summary>
 		/// Initializes Scanner Power Manager parameters

@@ -45,9 +45,20 @@ namespace ScaningManager
 			DeviceInfoCollection = DeviceManager.DeviceInfos  ;
 			objScannerPowerManager = new ScannerPowerManager();
 			scnMngrLog = new ScnMngrLog();
-			
 		}
 
+		/// <summary>
+		/// Constructor
+		/// </summary>
+		/// <param name="_LogFileName">Log file name</param>
+		public ScannerControl(string _LogFileName)
+		{
+			DeviceManager = new DeviceManager();
+			DeviceInfoCollection = DeviceManager.DeviceInfos  ;
+			objScannerPowerManager = new ScannerPowerManager(_LogFileName);
+			scnMngrLog = new ScnMngrLog(_LogFileName);
+		}
+				
 		#region scanners list handling
 		
 		/// <summary>
