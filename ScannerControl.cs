@@ -195,10 +195,12 @@ namespace ScanningManager
 		/// </summary>
 		private void Disable()
 		{
+			int Delay = Convert.ToInt32(System.Configuration.ConfigurationManager.AppSettings["DisableDelay"]);
+
 			try
 			{			
 				objScannerPowerManager.DisableScanner();
-				System.Threading.Thread.Sleep(1000);
+				System.Threading.Thread.Sleep(Delay);
 			}
 			catch(ScnrPwrMngrException e)
 			{			
@@ -213,8 +215,10 @@ namespace ScanningManager
 		/// </summary>
 		public void Enable()
 		{
+			int Delay = Convert.ToInt32(System.Configuration.ConfigurationManager.AppSettings["EnableDelay"]);
+			
 			objScannerPowerManager.EnableScanner();
-			System.Threading.Thread.Sleep(1000);
+			System.Threading.Thread.Sleep(Delay);
 		}
 		
 		#endregion
