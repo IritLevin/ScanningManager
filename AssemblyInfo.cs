@@ -10,11 +10,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("ScanningManager")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Scanner array manager for time lapsed scanning")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Huji NQB lab")]
 [assembly: AssemblyProduct("ScanningManager")]
-[assembly: AssemblyCopyright("")]
+[assembly: AssemblyCopyright("Copyright 2010 Irit Levin Reisman published under GPLv3")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

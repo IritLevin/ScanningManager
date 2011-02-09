@@ -4,8 +4,27 @@
  * Date: 03-Dec-08
  * Time: 12:22 PM
  * 
- * To change this template use Tools | Options | Coding | Edit Standard Headers.
  */
+
+
+// ScanningManager controls an array of scanners for time lapsed serial scanning.
+// Copyright 2010 Irit Levin Reisman published under GPLv3,
+// this software was developed in Prof. Nathalie Q. Balaban's lab, at the Hebrew University , Jerusalem , Israel .
+// 
+//	  This file is part of ScanningManager.
+//
+//    ScanningManager is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
+//
+//    ScanningManager is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+//
+//    You should have received a copy of the GNU General Public License
+//    along with ScanningManager.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
 

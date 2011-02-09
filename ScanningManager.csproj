@@ -76,6 +76,12 @@
     <None Include="devcon.exe">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="License.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="readme.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="wiaaut.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

@@ -3,9 +3,32 @@
  * User: oferfrid
  * Date: 1/29/2008
  * Time: 1:31 PM
- * 
- * To change this template use Tools | Options | Coding | Edit Standard Headers.
  */
+
+
+// ScanningManager controls an array of scanners for time lapsed serial scanning.
+// Copyright 2010 Irit Levin Reisman published under GPLv3,
+// this software was developed in Prof. Nathalie Q. Balaban's lab, at the Hebrew University , Jerusalem , Israel .
+//
+// 
+//	  This file is part of ScanningManager.
+//
+//    ScanningManager is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
+//
+//    ScanningManager is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+//
+//    You should have received a copy of the GNU General Public License
+//    along with ScanningManager.  If not, see <http://www.gnu.org/licenses/>.
+
+
+ 
+ 
 
 using System;
 using System.Collections.Generic;
@@ -355,13 +378,27 @@ namespace ScanningManager
 						tbLog.Text = ErrMsg;							
 						if (tbEmail.Text != string.Empty)
 						{
-							EmailSMSSender.Sender.SendEmail(tbEmail.Text, 
-							                                @"Scanning Manager Alert", 
-							                                ErrMsg);
+							try
+							{
+								EmailSMSSender.Sender.SendEmail(tbEmail.Text, 
+								                                @"Scanning Manager Alert", 
+								                                ErrMsg);
+							}
+							catch (Exception ex)
+							{
+								scnMngrLog.LogError("Can not send Email. " + ex.ToString());
+							}
 						}
 						if (tbPhoneNumber.Text != string.Empty)
 						{
-							EmailSMSSender.Sender.SendSMS(tbPhoneNumber.Text, "Error scanning");
+							try
+							{
+								EmailSMSSender.Sender.SendSMS(tbPhoneNumber.Text, "Error scanning");
+							}
+							catch (Exception ex)
+							{
+								scnMngrLog.LogError("Can not send SMS. " + ex.ToString());
+							}
 						}
 						
 					}
@@ -376,13 +413,27 @@ namespace ScanningManager
 						tbLog.Text = ErrMsg;
 						if (tbEmail.Text != string.Empty)
 						{
-							EmailSMSSender.Sender.SendEmail(tbEmail.Text, 
+							try
+							{
+								EmailSMSSender.Sender.SendEmail(tbEmail.Text, 
 							                                @"Scanning Manager FATAL ERROR", 
 							                                ErrMsg);
+							}
+							catch (Exception ex)
+							{
+								scnMngrLog.LogError("Can not send Email. " + ex.ToString());
+							}
 						}
 						if (tbPhoneNumber.Text != string.Empty)
 						{
-							EmailSMSSender.Sender.SendSMS(tbPhoneNumber.Text, "Fatal Error");
+							try
+							{
+								EmailSMSSender.Sender.SendSMS(tbPhoneNumber.Text, "Fatal Error");
+							}
+							catch (Exception ex)
+							{
+								scnMngrLog.LogError("Can not send SMS. " + ex.ToString());
+							}
 						}
 						throw e;
 					}
