@@ -40,7 +40,6 @@ namespace ScanningManager
 			this.components = new System.ComponentModel.Container();
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
 			this.fbdSaveTo = new System.Windows.Forms.FolderBrowserDialog();
-			this.btnScan = new System.Windows.Forms.Button();
 			this.btnSelectOutputFolder = new System.Windows.Forms.Button();
 			this.tbOutputPath = new System.Windows.Forms.TextBox();
 			this.picLastScan = new System.Windows.Forms.PictureBox();
@@ -75,16 +74,18 @@ namespace ScanningManager
 			this.cmbActiveScanners = new System.Windows.Forms.ComboBox();
 			this.label10 = new System.Windows.Forms.Label();
 			this.lblTimeToNextScan = new System.Windows.Forms.Label();
-			this.btnStop = new System.Windows.Forms.Button();
 			this.UpdateProgressTimer = new System.Windows.Forms.Timer(this.components);
 			this.statusStrip1 = new System.Windows.Forms.StatusStrip();
 			this.StatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
 			this.EventLogger = new System.Diagnostics.EventLog();
 			this.gbExperimentOwner = new System.Windows.Forms.GroupBox();
+			this.btnTestEmailSms = new System.Windows.Forms.Button();
+			this.cbPhone = new System.Windows.Forms.CheckBox();
+			this.cbEmail = new System.Windows.Forms.CheckBox();
 			this.tbPhoneNumber = new System.Windows.Forms.TextBox();
 			this.tbEmail = new System.Windows.Forms.TextBox();
-			this.lblPhoneNumber = new System.Windows.Forms.Label();
-			this.lblEmail = new System.Windows.Forms.Label();
+			this.cbScanStop = new System.Windows.Forms.CheckBox();
+			this.ttPhone = new System.Windows.Forms.ToolTip(this.components);
 			((System.ComponentModel.ISupportInitialize)(this.picLastScan)).BeginInit();
 			this.gbExperimentConfiguration.SuspendLayout();
 			this.gbScanningConfiguration.SuspendLayout();
@@ -93,17 +94,6 @@ namespace ScanningManager
 			((System.ComponentModel.ISupportInitialize)(this.EventLogger)).BeginInit();
 			this.gbExperimentOwner.SuspendLayout();
 			this.SuspendLayout();
-			// 
-			// btnScan
-			// 
-			this.btnScan.Enabled = false;
-			this.btnScan.Location = new System.Drawing.Point(76, 173);
-			this.btnScan.Name = "btnScan";
-			this.btnScan.Size = new System.Drawing.Size(131, 25);
-			this.btnScan.TabIndex = 2;
-			this.btnScan.Text = "Scan";
-			this.btnScan.UseVisualStyleBackColor = true;
-			this.btnScan.Click += new System.EventHandler(this.BtnScanClick);
 			// 
 			// btnSelectOutputFolder
 			// 
@@ -277,11 +267,10 @@ namespace ScanningManager
 			this.gbScanningConfiguration.Controls.Add(this.tbFileName);
 			this.gbScanningConfiguration.Controls.Add(this.label5);
 			this.gbScanningConfiguration.Controls.Add(this.btnSelectOutputFolder);
-			this.gbScanningConfiguration.Controls.Add(this.btnScan);
 			this.gbScanningConfiguration.Controls.Add(this.tbOutputPath);
 			this.gbScanningConfiguration.Location = new System.Drawing.Point(12, 205);
 			this.gbScanningConfiguration.Name = "gbScanningConfiguration";
-			this.gbScanningConfiguration.Size = new System.Drawing.Size(273, 204);
+			this.gbScanningConfiguration.Size = new System.Drawing.Size(273, 171);
 			this.gbScanningConfiguration.TabIndex = 10;
 			this.gbScanningConfiguration.TabStop = false;
 			this.gbScanningConfiguration.Text = "Scanning Configuration";
@@ -425,17 +414,6 @@ namespace ScanningManager
 			this.lblTimeToNextScan.TabIndex = 8;
 			this.lblTimeToNextScan.Text = "Time To Next Scan:";
 			// 
-			// btnStop
-			// 
-			this.btnStop.Enabled = false;
-			this.btnStop.Location = new System.Drawing.Point(452, 498);
-			this.btnStop.Name = "btnStop";
-			this.btnStop.Size = new System.Drawing.Size(75, 23);
-			this.btnStop.TabIndex = 12;
-			this.btnStop.Text = "Stop";
-			this.btnStop.UseVisualStyleBackColor = true;
-			this.btnStop.Click += new System.EventHandler(this.BtnExitClick);
-			// 
 			// UpdateProgressTimer
 			// 
 			this.UpdateProgressTimer.Interval = 10000;
@@ -445,7 +423,7 @@ namespace ScanningManager
 			// 
 			this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
 									this.StatusLabel});
-			this.statusStrip1.Location = new System.Drawing.Point(0, 531);
+			this.statusStrip1.Location = new System.Drawing.Point(0, 498);
 			this.statusStrip1.Name = "statusStrip1";
 			this.statusStrip1.Size = new System.Drawing.Size(543, 22);
 			this.statusStrip1.SizingGrip = false;
@@ -464,23 +442,53 @@ namespace ScanningManager
 			// 
 			// gbExperimentOwner
 			// 
+			this.gbExperimentOwner.Controls.Add(this.btnTestEmailSms);
+			this.gbExperimentOwner.Controls.Add(this.cbPhone);
+			this.gbExperimentOwner.Controls.Add(this.cbEmail);
 			this.gbExperimentOwner.Controls.Add(this.tbPhoneNumber);
 			this.gbExperimentOwner.Controls.Add(this.tbEmail);
-			this.gbExperimentOwner.Controls.Add(this.lblPhoneNumber);
-			this.gbExperimentOwner.Controls.Add(this.lblEmail);
-			this.gbExperimentOwner.Location = new System.Drawing.Point(12, 417);
+			this.gbExperimentOwner.Location = new System.Drawing.Point(12, 384);
 			this.gbExperimentOwner.Name = "gbExperimentOwner";
 			this.gbExperimentOwner.Size = new System.Drawing.Size(273, 75);
 			this.gbExperimentOwner.TabIndex = 15;
 			this.gbExperimentOwner.TabStop = false;
 			this.gbExperimentOwner.Text = "Experiment Owner";
 			// 
+			// btnTestEmailSms
+			// 
+			this.btnTestEmailSms.Location = new System.Drawing.Point(213, 41);
+			this.btnTestEmailSms.Name = "btnTestEmailSms";
+			this.btnTestEmailSms.Size = new System.Drawing.Size(51, 23);
+			this.btnTestEmailSms.TabIndex = 6;
+			this.btnTestEmailSms.Text = "Test";
+			this.btnTestEmailSms.UseVisualStyleBackColor = true;
+			this.btnTestEmailSms.Click += new System.EventHandler(this.BtnTestEmailSmsClick);
+			// 
+			// cbPhone
+			// 
+			this.cbPhone.Location = new System.Drawing.Point(7, 41);
+			this.cbPhone.Name = "cbPhone";
+			this.cbPhone.Size = new System.Drawing.Size(63, 24);
+			this.cbPhone.TabIndex = 5;
+			this.cbPhone.Text = "Phone";
+			this.cbPhone.UseVisualStyleBackColor = true;
+			// 
+			// cbEmail
+			// 
+			this.cbEmail.Location = new System.Drawing.Point(7, 15);
+			this.cbEmail.Name = "cbEmail";
+			this.cbEmail.Size = new System.Drawing.Size(63, 24);
+			this.cbEmail.TabIndex = 4;
+			this.cbEmail.Text = "Email";
+			this.cbEmail.UseVisualStyleBackColor = true;
+			// 
 			// tbPhoneNumber
 			// 
 			this.tbPhoneNumber.Location = new System.Drawing.Point(76, 43);
 			this.tbPhoneNumber.Name = "tbPhoneNumber";
-			this.tbPhoneNumber.Size = new System.Drawing.Size(188, 20);
+			this.tbPhoneNumber.Size = new System.Drawing.Size(131, 20);
 			this.tbPhoneNumber.TabIndex = 3;
+			this.ttPhone.SetToolTip(this.tbPhoneNumber, "+972#########");
 			// 
 			// tbEmail
 			// 
@@ -489,38 +497,41 @@ namespace ScanningManager
 			this.tbEmail.Size = new System.Drawing.Size(188, 20);
 			this.tbEmail.TabIndex = 2;
 			// 
-			// lblPhoneNumber
+			// cbScanStop
 			// 
-			this.lblPhoneNumber.Location = new System.Drawing.Point(6, 43);
-			this.lblPhoneNumber.Name = "lblPhoneNumber";
-			this.lblPhoneNumber.Size = new System.Drawing.Size(64, 23);
-			this.lblPhoneNumber.TabIndex = 1;
-			this.lblPhoneNumber.Text = "Phone";
+			this.cbScanStop.Appearance = System.Windows.Forms.Appearance.Button;
+			this.cbScanStop.Enabled = false;
+			this.cbScanStop.Location = new System.Drawing.Point(88, 468);
+			this.cbScanStop.Name = "cbScanStop";
+			this.cbScanStop.Size = new System.Drawing.Size(104, 24);
+			this.cbScanStop.TabIndex = 16;
+			this.cbScanStop.Text = "Scan";
+			this.cbScanStop.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+			this.cbScanStop.UseVisualStyleBackColor = true;
+			this.cbScanStop.Click += new System.EventHandler(this.CbScanStopCheckedChanged);
 			// 
-			// lblEmail
+			// ttPhone
 			// 
-			this.lblEmail.Location = new System.Drawing.Point(7, 20);
-			this.lblEmail.Name = "lblEmail";
-			this.lblEmail.Size = new System.Drawing.Size(63, 23);
-			this.lblEmail.TabIndex = 0;
-			this.lblEmail.Text = "Email";
+			this.ttPhone.AutoPopDelay = 2000;
+			this.ttPhone.InitialDelay = 500;
+			this.ttPhone.ReshowDelay = 100;
 			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(543, 553);
+			this.ClientSize = new System.Drawing.Size(543, 520);
+			this.Controls.Add(this.cbScanStop);
 			this.Controls.Add(this.gbExperimentOwner);
 			this.Controls.Add(this.statusStrip1);
-			this.Controls.Add(this.btnStop);
 			this.Controls.Add(this.gbExperimentStatus);
 			this.Controls.Add(this.gbScanningConfiguration);
 			this.Controls.Add(this.gbExperimentConfiguration);
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.Name = "MainForm";
 			this.Text = "Scanning Manager";
-			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainFormFormClosing);
 			this.Load += new System.EventHandler(this.MainFormLoad);
+			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainFormFormClosing);
 			((System.ComponentModel.ISupportInitialize)(this.picLastScan)).EndInit();
 			this.gbExperimentConfiguration.ResumeLayout(false);
 			this.gbExperimentConfiguration.PerformLayout();
@@ -536,9 +547,12 @@ namespace ScanningManager
 			this.ResumeLayout(false);
 			this.PerformLayout();
 		}
+		private System.Windows.Forms.ToolTip ttPhone;
+		private System.Windows.Forms.CheckBox cbScanStop;
+		private System.Windows.Forms.Button btnTestEmailSms;
+		private System.Windows.Forms.CheckBox cbPhone;
+		private System.Windows.Forms.CheckBox cbEmail;
 		private System.Windows.Forms.TextBox tbLog;
-		private System.Windows.Forms.Label lblEmail;
-		private System.Windows.Forms.Label lblPhoneNumber;
 		private System.Windows.Forms.TextBox tbEmail;
 		private System.Windows.Forms.TextBox tbPhoneNumber;
 		private System.Windows.Forms.GroupBox gbExperimentOwner;
@@ -553,7 +567,6 @@ namespace ScanningManager
 		private System.Windows.Forms.Timer UpdateProgressTimer;
 		
 		private System.Windows.Forms.ProgressBar progExperimentProgress;
-		private System.Windows.Forms.Button   btnScan;
 		private System.Windows.Forms.Label  label5;
 		private System.Windows.Forms.GroupBox  gbExperimentStatus;
 		private System.Windows.Forms.DateTimePicker  dtpEndDateTime;
@@ -582,6 +595,5 @@ namespace ScanningManager
 		private System.Windows.Forms.Label lblTimeToNextScan;
 		private System.Windows.Forms.Label lblProgress;
 		private System.Windows.Forms.TextBox tbOutputPath;
-		private System.Windows.Forms.Button btnStop;
 	}
 }
