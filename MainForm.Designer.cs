@@ -508,6 +508,7 @@ namespace ScanningManager
 			this.cbScanStop.Text = "Scan";
 			this.cbScanStop.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
 			this.cbScanStop.UseVisualStyleBackColor = true;
+			this.cbScanStop.CheckedChanged += new System.EventHandler(this.CbScanStopCheckedChanged);
 			this.cbScanStop.Click += new System.EventHandler(this.CbScanStopCheckedChanged);
 			// 
 			// ttPhone
@@ -530,8 +531,8 @@ namespace ScanningManager
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.Name = "MainForm";
 			this.Text = "Scanning Manager";
-			this.Load += new System.EventHandler(this.MainFormLoad);
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainFormFormClosing);
+			this.Load += new System.EventHandler(this.MainFormLoad);
 			((System.ComponentModel.ISupportInitialize)(this.picLastScan)).EndInit();
 			this.gbExperimentConfiguration.ResumeLayout(false);
 			this.gbExperimentConfiguration.PerformLayout();

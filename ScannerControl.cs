@@ -118,6 +118,17 @@ namespace ScanningManager
 			SelectPicsProperties(ScanningDPI);	
 		}
 		
+		
+		/// <summary>
+		/// Takes a picture
+		/// </summary>
+		/// <param name="FileName">the name of the file saved (as object)</param>
+		/// <returns>bitmap picture</returns>
+		public void Scan(object FileName)
+		{	
+			 Scan((string) FileName);
+		}
+		
 		/// <summary>
 		/// Takes a picture
 		/// </summary>

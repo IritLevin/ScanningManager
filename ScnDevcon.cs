@@ -1,10 +1,10 @@
-/*
+﻿/*
  * Created by SharpDevelop.
  * User: Irit
  * Date: 22/03/09
  * Time: 11:20 AM
  * 
-  */
+ */
 
 
 // ScanningManager controls an array of scanners for time lapsed serial scanning.
@@ -36,7 +36,7 @@ using System.Diagnostics;
 namespace ScanningManager
 {
 	/// <summary>
-	/// This class replaces the computer device manager. 
+	/// This class replaces the computer device manager.
 	/// It allows us to get the connected devices and anable and disable them.
 	/// </summary>
 	public class ScnDevcon
@@ -80,6 +80,7 @@ namespace ScanningManager
 			string allData= string.Empty ;
 			
 			myProcess.StartInfo.Arguments =  "hwids =Image";
+			
 			myProcess.Start();
 			while ((data = myProcess.StandardOutput.ReadLine()) != null)
 			{
@@ -90,7 +91,7 @@ namespace ScanningManager
 		}
 		
 		/// <summary>
-		/// Analyzes the text returned from devcon 
+		/// Analyzes the text returned from devcon
 		/// </summary>
 		/// <returns>A list of ImagingDevice</returns>
 		private List<ImagingDevice> AnalayzeReturnedData()
@@ -109,7 +110,7 @@ namespace ScanningManager
 					tmpImagingDevice.InstanceID = ReturnedDataArray[i-1].Trim();
 					tmpImagingDevice.Name = ReturnedDataArray[i].Trim().Remove(0,6);
 					ImagingDeviceList.Add(tmpImagingDevice);
-				}				
+				}
 			}
 			
 			return ImagingDeviceList;
@@ -141,7 +142,7 @@ namespace ScanningManager
 			myProcess.StartInfo.FileName = System.Configuration.ConfigurationManager.AppSettings["DevconPath"];
 			myProcess.StartInfo.Arguments = @" status " + InstanceID;
 			myProcess.Start();
-	
+			
 			while ((data = myProcess.StandardOutput.ReadLine()) != null)
 			{
 				allData += ("\n" + data);
@@ -166,7 +167,7 @@ namespace ScanningManager
 				if (ReturnedDataArray[i].IndexOf(@"Driver is running")>0)
 				{
 					CnctStatus = (int)ConnectionStatus.Connected;
-				}				
+				}
 				else if (ReturnedDataArray[i].IndexOf(@"Device is disabled")>0)
 				{
 					CnctStatus = (int)ConnectionStatus.Disabled;

@@ -247,7 +247,7 @@ namespace ScanningManager
 			}
 		}
 		
-				/// <summary>
+		/// <summary>
 		/// Starts and stops the scanning
 		/// </summary>
 		/// <param name="sender"></param>
@@ -376,6 +376,7 @@ namespace ScanningManager
 				cbScanStop.Enabled = false;
 				gbExperimentOwner.Enabled = false;
 				
+				//TODO: call in Thread
 				// scanning with all the scanners selected
 				for (int i=0 ; i<NumberOfScanners;i++)
 				{
@@ -383,7 +384,22 @@ namespace ScanningManager
 					{
 						StatusLabel.Text = @"Scanning is in progress (scanner " + (i+1).ToString() + @"/" + NumberOfScanners.ToString() + ")";
 						this.Refresh();
-						LastScans[i]= Scanners[i].Scan(tbOutputPath.Text +  @"\" + tbFileName.Text + @"_" + i.ToString()+ @"_" + GetDateString(DateTime.Now)  +@".tif");
+						System.Threading.Thread newThread;
+						
+
+						string filename = tbOutputPath.Text +  @"\" + tbFileName.Text + @"_" + i.ToString()+ @"_" + GetDateString(DateTime.Now)  +@".tif";
+						
+						newThread = new System.Threading.Thread(Scanners[i].Scan);
+						newThread.Start((object)filename);
+						
+						//calculating the time for one scaning
+						int TimeOut4Scann = Convert.ToInt16(ConfigurationManager.AppSettings["EnableDelay"])
+							+ Convert.ToInt16(ConfigurationManager.AppSettings["DisableDelay"])
+							+ Convert.ToInt16(ConfigurationManager.AppSettings["ScanningTimeDelay"]) ;
+
+						newThread.Join(TimeOut4Scann);
+						
+						
 					}
 					catch (ScnMngrException e)
 					{
