@@ -393,9 +393,9 @@ namespace ScanningManager
 						newThread.Start((object)filename);
 						
 						//calculating the time for one scaning
-						int TimeOut4Scann = Convert.ToInt16(ConfigurationManager.AppSettings["EnableDelay"])
-							+ Convert.ToInt16(ConfigurationManager.AppSettings["DisableDelay"])
-							+ Convert.ToInt16(ConfigurationManager.AppSettings["ScanningTimeDelay"]) ;
+						int TimeOut4Scann = Convert.ToInt32(ConfigurationManager.AppSettings["EnableDelay"])
+							+ Convert.ToInt32(ConfigurationManager.AppSettings["DisableDelay"])
+							+ Convert.ToInt32(ConfigurationManager.AppSettings["ScanningTimeDelay"]) ;
 
 						newThread.Join(TimeOut4Scann);
 						
