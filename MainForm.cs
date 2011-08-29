@@ -242,7 +242,6 @@ namespace ScanningManager
 		{
 			if (lbScannersList.SelectedItems.Count != 0)
 			{
-				//btnScan.Enabled = true;
 				cbScanStop.Enabled = true;
 			}
 		}
@@ -528,7 +527,12 @@ namespace ScanningManager
 				EnableAllScanners();
 				ScanningTimer.Stop();
 				UpdateProgressTimer.Stop();
+				gbScanningConfiguration.Enabled   = true;
+				gbExperimentConfiguration.Enabled = true;
+				gbExperimentStatus.Enabled        = true;
 				scnMngrLog.LogInfo("Experiment Ended");
+				cbScanStop.Text = "Scan";
+				cbScanStop.Checked = false;
 			}
 			else
 			{
