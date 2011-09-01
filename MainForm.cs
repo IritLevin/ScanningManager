@@ -441,7 +441,7 @@ namespace ScanningManager
 								scnMngrLog.LogError("Can not send Email. " + ex.ToString());
 							}
 						}
-						if (tbPhoneNumber.Text != string.Empty)
+						if (tbPhoneNumber.Text != string.Empty && cbPhone.Checked)
 						{
 							try
 							{
@@ -451,6 +451,7 @@ namespace ScanningManager
 							{
 								scnMngrLog.LogError("Can not send SMS. " + ex.ToString());
 							}
+							cbPhone.Checked = false;
 						}
 						throw e;
 					}
