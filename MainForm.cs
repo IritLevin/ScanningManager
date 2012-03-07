@@ -3,10 +3,10 @@
  * User: oferfrid
  * Date: 1/29/2008
  * Time: 1:31 PM
- * ---------------------------------------------------------------
- * Updates: Irit L. Reisman
- * 1. Changing the SMS and Email sending
- * 2. Changing the scan and stop button to toggle Scane/Stop button
+ * 
+ * Bug Fix:
+ * --------
+ * 10.03.2011 Irit Levin Reisman: Env Room log without \t
  */
 
 
@@ -31,8 +31,8 @@
 //    along with ScanningManager.  If not, see <http://www.gnu.org/licenses/>.
 
 
-
-
+ 
+ 
 
 using System;
 using System.Collections.Generic;
@@ -70,7 +70,7 @@ namespace ScanningManager
 		
 		#region Form methods
 		public MainForm()
-		{
+		{			
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
@@ -114,7 +114,7 @@ namespace ScanningManager
 		{
 			LogFileName = tbOutputPath.Text + @"\LogFile.txt";
 		}
-		
+				
 		void MainFormLoad(object sender, EventArgs e)
 		{
 			dtpStartDateTime.Value = DateTime.Now;
@@ -188,7 +188,7 @@ namespace ScanningManager
 			{
 				LogEnvRoom();
 			}
-			ScanNow();
+			ScanNow();		
 			NextScan = DateTime.Now.AddMinutes(Convert.ToInt32(tbTimeGap.Text));
 			UpdateExperimentProgress();
 			this.Refresh();
@@ -242,116 +242,105 @@ namespace ScanningManager
 		{
 			if (lbScannersList.SelectedItems.Count != 0)
 			{
-				cbScanStop.Enabled = true;
+				btnScan.Enabled = true;
 			}
 		}
 		
-				/// <summary>
-		/// Starts and stops the scanning
+				
+		/// <summary>
+		/// starts the serial scanning by the parameters given for start time, time gap and number for iterations
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		void CbScanStopCheckedChanged(object sender, EventArgs e)
+		void BtnScanClick(object sender, EventArgs e)
 		{
-			// -------------------------------------------------
-			// if the button was pressed - performs scanning
-			// -------------------------------------------------
-			if (cbScanStop.Checked)
+			StartLogging();
+
+			// disabling the configuration and enabling the status group
+			// ----------------------------------------------------------
+			gbExperimentStatus.Enabled = true;
+			gbScanningConfiguration.Enabled = false;
+			gbExperimentConfiguration.Enabled = false;
+
+			
+			// Initializing the properties of scanning for each scanner
+			// ---------------------------------------------------------
+			AllScannersEnabled = false;
+			NumberOfScanners = lbScannersList.SelectedItems.Count;
+			Scanners = new ScannerControl[NumberOfScanners];
+			LastScans = new Bitmap[NumberOfScanners];
+			
+			ListBox.SelectedIndexCollection SelectedInd  = lbScannersList.SelectedIndices;
+			cmbActiveScanners.Items.Clear();
+			
+			for ( int i=0;i<NumberOfScanners;i++)
 			{
-				StartLogging();
-
-				// disabling the configuration and enabling the status group
-				// ----------------------------------------------------------
-				gbExperimentStatus.Enabled = true;
-				gbScanningConfiguration.Enabled = false;
-				gbExperimentConfiguration.Enabled = false;
-				cbScanStop.Text = "Stop";
-				cbScanStop.Enabled = false;
-
+				Scanners[i] = new ScannerControl(LogFileName);
+				Scanners[i].SelectDevice( ScannersList[SelectedInd[i]]);
 				
-				// Initializing the properties of scanning for each scanner
-				// ---------------------------------------------------------
-				AllScannersEnabled = false;
-				NumberOfScanners = lbScannersList.SelectedItems.Count;
-				Scanners = new ScannerControl[NumberOfScanners];
-				LastScans = new Bitmap[NumberOfScanners];
+				cmbActiveScanners.Items.Add(lbScannersList.SelectedItems[i]);
 				
-				ListBox.SelectedIndexCollection SelectedInd  = lbScannersList.SelectedIndices;
-				cmbActiveScanners.Items.Clear();
-				
-				for ( int i=0;i<NumberOfScanners;i++)
-				{
-					Scanners[i] = new ScannerControl(LogFileName);
-					Scanners[i].SelectDevice( ScannersList[SelectedInd[i]],Convert.ToInt32(ConfigurationManager.AppSettings["ScanningDPI"]));
-					
-					cmbActiveScanners.Items.Add(lbScannersList.SelectedItems[i]);
-					
-				}
-				
-				// taking the fisrt picture
-				// -------------------------
-				if (cbRecordEnvRoom.Checked)
-				{
-					LogEnvRoom();
-				}
-				ScanNow();
-				
-				// total experiment progress bar
-				progExperimentProgress.Minimum = 0;
-				progExperimentProgress.Maximum = Convert.ToInt32((dtpEndDateTime.Value - DateTime.Now).Ticks/(HunderdNano2Sec));
-				progExperimentProgress.Value = 0;
-				
-				// Setting the timer to the first picture
-				// ---------------------------------------
-				int TimeToFirstScan = Convert.ToInt32((dtpStartDateTime.Value - DateTime.Now).Ticks/HunderdNano2Sec);
-				if (TimeToFirstScan < 0)
-				{
-					// starting experiment immediatly
-					StartTimerTick(this, new EventArgs());
-				}
-				else
-				{
-					// starting experiment with delay
-					StartTimer.Interval =  TimeToFirstScan*1000 ;
-					StartTimer.Start();
-					// starting progress bar
-					NextScan = dtpStartDateTime.Value;
-					progTimeToNextScan.Minimum = 0;
-					progTimeToNextScan.Maximum = TimeToFirstScan;
-					progTimeToNextScan.Value = 0;
-					lblTimeToNextScan.Text = @"Time To Next Scan: " + Seconds2hhmmssString(TimeToFirstScan);//TimeToFirstScan.ToString() + " seconds";
-				}
-				UpdateProgressTimer.Start();
 			}
-			// ---------------------------------------------
-			// if the button was unpressed - stops scanning
-			// ---------------------------------------------
+			
+			// taking the fisrt picture
+			// -------------------------			
+			if (cbRecordEnvRoom.Checked)
+			{
+				LogEnvRoom();
+			}
+			ScanNow();
+			
+			// total experiment progress bar
+			progExperimentProgress.Minimum = 0;
+			progExperimentProgress.Maximum = Convert.ToInt32((dtpEndDateTime.Value - DateTime.Now).Ticks/(HunderdNano2Sec));
+			progExperimentProgress.Value = 0;
+			
+			// Setting the timer to the first picture
+			// ---------------------------------------
+			int TimeToFirstScan = Convert.ToInt32((dtpStartDateTime.Value - DateTime.Now).Ticks/HunderdNano2Sec);
+			if (TimeToFirstScan < 0)
+			{
+				// starting experiment immediatly
+				StartTimerTick(this, new EventArgs());
+			}
 			else
 			{
-				DialogResult result = MessageBox.Show( @"Are you sure you want to stop scanning?",
-				                                      @"Stop Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Warning  );
-				if ( result == DialogResult.Yes)
-				{
-					StatusLabel.Text = "please wait while scanners are reconnected";
-					this.Refresh();
-					ScanningTimer.Stop();
-					StartTimer.Stop();
-					UpdateProgressTimer.Stop();
-					gbScanningConfiguration.Enabled   = true;
-					gbExperimentConfiguration.Enabled = true;
-					gbExperimentStatus.Enabled        = true;
-					EnableAllScanners();
-					string msgText = "Process was stopped by user at: " + DateTime.Now.ToString("dd/MM/yyyy HH:mm");
-					StatusLabel.Text = msgText;
-					scnMngrLog.LogInfo(msgText);
-					cbScanStop.Text = "Scan";
-					cbScanStop.Enabled = true;
-				}
-				else
-				{
-					cbScanStop.Checked = true;
-				}
-				
+				// starting experiment with delay
+				StartTimer.Interval =  TimeToFirstScan*1000 ;
+				StartTimer.Start();
+				// starting progress bar
+				NextScan = dtpStartDateTime.Value;
+				progTimeToNextScan.Minimum = 0;
+				progTimeToNextScan.Maximum = TimeToFirstScan;
+				progTimeToNextScan.Value = 0;
+				lblTimeToNextScan.Text = @"Time To Next Scan: " + Seconds2hhmmssString(TimeToFirstScan);//TimeToFirstScan.ToString() + " seconds";
+			}
+			UpdateProgressTimer.Start();
+		}
+		
+		/// <summary>
+		/// Stops the experiment
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		void BtnExitClick(object sender, EventArgs e)
+		{
+			DialogResult result = MessageBox.Show( @"Are you sure you want to stop scanning?",
+				                                   @"Stop Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Warning  );
+			if ( result == DialogResult.Yes)
+			{
+				StatusLabel.Text = "please wait while scanners are reconnected";
+				this.Refresh();
+				ScanningTimer.Stop();
+				StartTimer.Stop();
+				UpdateProgressTimer.Stop();
+				gbScanningConfiguration.Enabled   = true;
+				gbExperimentConfiguration.Enabled = true;
+				gbExperimentStatus.Enabled        = true;
+				EnableAllScanners();
+				string msgText = "Process was stopped by user at: " + DateTime.Now.ToString("dd/MM/yyyy HH:mm");
+				StatusLabel.Text = msgText;
+				scnMngrLog.LogInfo(msgText);
 			}
 		}
 
@@ -371,8 +360,7 @@ namespace ScanningManager
 			}
 			else
 			{
-				//btnStop.Enabled = false;
-				cbScanStop.Enabled = false;
+				btnStop.Enabled = false;
 				gbExperimentOwner.Enabled = false;
 				
 				// scanning with all the scanners selected
@@ -382,22 +370,22 @@ namespace ScanningManager
 					{
 						StatusLabel.Text = @"Scanning is in progress (scanner " + (i+1).ToString() + @"/" + NumberOfScanners.ToString() + ")";
 						this.Refresh();
-						LastScans[i]= Scanners[i].Scan(tbOutputPath.Text +  @"\" + tbFileName.Text + @"_" + i.ToString()+ @"_" + GetDateString(DateTime.Now)  +@".tif");
+						LastScans[i]= Scanners[i].Scan(tbOutputPath.Text +  @"\" + tbFileName.Text + @"_" + i.ToString()+ @"_" + GetDateString(DateTime.Now)  +@".tif");												
 					}
 					catch (ScnMngrException e)
 					{
 						LastScans[i] = CreateDefaultPicture();
 						scnMngrLog.LogError(e.ToString());
 						string ErrMsg = DateTime.Now.ToString("dd/MM/yyyy HH:mm") +" - " +
-							e.Message.ToString() +
+							e.Message.ToString() + 
 							Environment.NewLine + tbLog.Text;
-						tbLog.Text = ErrMsg;
-						if (tbEmail.Text != string.Empty && cbEmail.Checked)
+						tbLog.Text = ErrMsg;							
+						if (tbEmail.Text != string.Empty)
 						{
 							try
 							{
-								EmailSMSSender.Sender.SendEmail(tbEmail.Text,
-								                                @"Scanning Manager Alert",
+								EmailSMSSender.Sender.SendEmail(tbEmail.Text, 
+								                                @"Scanning Manager Alert", 
 								                                ErrMsg);
 							}
 							catch (Exception ex)
@@ -405,7 +393,7 @@ namespace ScanningManager
 								scnMngrLog.LogError("Can not send Email. " + ex.ToString());
 							}
 						}
-						if (tbPhoneNumber.Text != string.Empty && cbPhone.Checked)
+						if (tbPhoneNumber.Text != string.Empty)
 						{
 							try
 							{
@@ -415,7 +403,6 @@ namespace ScanningManager
 							{
 								scnMngrLog.LogError("Can not send SMS. " + ex.ToString());
 							}
-							cbPhone.Checked = false;
 						}
 						
 					}
@@ -425,23 +412,23 @@ namespace ScanningManager
 						LastScans[i] = CreateDefaultPicture();
 						scnMngrLog.LogFatal(e.ToString());
 						string ErrMsg = DateTime.Now.ToString("dd/MM/yyyy HH:mm") +" - " +
-							e.Message.ToString() +
+							e.Message.ToString() + 
 							Environment.NewLine + tbLog.Text;
 						tbLog.Text = ErrMsg;
 						if (tbEmail.Text != string.Empty)
 						{
 							try
 							{
-								EmailSMSSender.Sender.SendEmail(tbEmail.Text,
-								                                @"Scanning Manager FATAL ERROR",
-								                                ErrMsg);
+								EmailSMSSender.Sender.SendEmail(tbEmail.Text, 
+							                                @"Scanning Manager FATAL ERROR", 
+							                                ErrMsg);
 							}
 							catch (Exception ex)
 							{
 								scnMngrLog.LogError("Can not send Email. " + ex.ToString());
 							}
 						}
-						if (tbPhoneNumber.Text != string.Empty && cbPhone.Checked)
+						if (tbPhoneNumber.Text != string.Empty)
 						{
 							try
 							{
@@ -451,7 +438,6 @@ namespace ScanningManager
 							{
 								scnMngrLog.LogError("Can not send SMS. " + ex.ToString());
 							}
-							cbPhone.Checked = false;
 						}
 						throw e;
 					}
@@ -459,12 +445,11 @@ namespace ScanningManager
 					picLastScan.Image = LastScans[i];
 					StatusLabel.Text = "";
 				}
-				//btnStop.Enabled = true;
+				btnStop.Enabled = true;
 				gbExperimentOwner.Enabled = true;
-				cbScanStop.Enabled = true;
 			}
 		}
-		
+						
 		/// <summary>
 		/// Enable all scanners
 		/// </summary>
@@ -483,15 +468,15 @@ namespace ScanningManager
 				catch (ScnMngrException e)
 				{
 					scnMngrLog.LogError(e.ToString());
-					tbLog.Text =
-						DateTime.Now.ToShortDateString() + " " +
-						DateTime.Now.ToShortTimeString() +" - " +
-						e.Message.ToString() +
-						Environment.NewLine + tbLog.Text;
+					tbLog.Text = 
+							DateTime.Now.ToShortDateString() + " " +
+							DateTime.Now.ToShortTimeString() +" - " +
+							e.Message.ToString() + 
+							Environment.NewLine + tbLog.Text;
 				}
 				
 			}
-		}
+		}	
 		
 		/// <summary>
 		/// Updating the progress till next scan
@@ -528,12 +513,7 @@ namespace ScanningManager
 				EnableAllScanners();
 				ScanningTimer.Stop();
 				UpdateProgressTimer.Stop();
-				gbScanningConfiguration.Enabled   = true;
-				gbExperimentConfiguration.Enabled = true;
-				gbExperimentStatus.Enabled        = true;
 				scnMngrLog.LogInfo("Experiment Ended");
-				cbScanStop.Text = "Scan";
-				cbScanStop.Checked = false;
 			}
 			else
 			{
@@ -594,7 +574,7 @@ namespace ScanningManager
 			// Create points that define line.
 			Point point1 ;
 			Point point2;
-			
+					
 			point1 = new Point(0, 0);
 			point2 = new Point(100, 100);
 			
@@ -627,44 +607,6 @@ namespace ScanningManager
 			return B;
 		}
 		
-		/// <summary>
-		/// Tests Email sending and SMS messages sending
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		void BtnTestEmailSmsClick(object sender, EventArgs e)
-		{
-			if (tbEmail.Text != string.Empty)
-			{
-				try
-				{
-					EmailSMSSender.Sender.SendEmail(tbEmail.Text,
-					                                @"Scanning Manager Alert",
-					                                "Test Email");
-				}
-				catch (Exception ex)
-				{
-					DialogResult result = MessageBox.Show( ex.ToString(),
-					                                      @"Error Sending Email",
-					                                      MessageBoxButtons.OK,
-					                                      MessageBoxIcon.Error );
-				}
-			}
-			if (tbPhoneNumber.Text != string.Empty)
-			{
-				try
-				{
-					EmailSMSSender.Sender.SendSMS(tbPhoneNumber.Text, "TestSMS");
-				}
-				catch (Exception ex)
-				{
-					DialogResult result = MessageBox.Show( ex.ToString(),
-					                                      @"Error Sending SMS",
-					                                      MessageBoxButtons.OK,
-					                                      MessageBoxIcon.Error );
-				}
-			}
-		}
 		#endregion
 		
 		
@@ -677,10 +619,10 @@ namespace ScanningManager
 		{
 			string ExpParameters;
 			
-			scnMngrLog = new ScnMngrLog(LogFileName);
+			scnMngrLog = new ScnMngrLog(LogFileName);	
 			scnMngrLog.LogInfo(@"ScanningManager version :"+
-			                   System.Reflection.Assembly.GetExecutingAssembly().GetName(false).Version.ToString());
-			ExpParameters =
+				System.Reflection.Assembly.GetExecutingAssembly().GetName(false).Version.ToString());
+			ExpParameters = 
 				@"Repetitions: "    + tbRepetitions.Text +
 				@"   Time Gap: "    + tbTimeGap.Text +
 				@"   Start After: " + tbStartGap.Text +
@@ -699,7 +641,7 @@ namespace ScanningManager
 		/// </summary>
 		void StartEnvRoomLogging()
 		{
-			EnvLogFileName = tbOutputPath.Text +  @"\EnvRoom.csv";
+			EnvLogFileName = tbOutputPath.Text +  @"\EnvRoom.csv";	
 			EnvControlerIO CIO    = new EnvControlerIO();
 			List<EnvRoomControler.ControllerEntry> CE = CIO.GetCurentValues();
 			string EnvRoomMsg     = ",\t";
@@ -708,41 +650,39 @@ namespace ScanningManager
 //			System.IO.FileInfo EnvRoomLogFile = new FileInfo(EnvLogFileName);
 //			StreamWriter SR = new StreamWriter(EnvLogFileName,true);
 			
-			for(int i=0;i<CE.Count;i++)
-			{
-				EnvRoomMsg += CE[i].LongName + ",\t";
-			}
-			
-			EnvRoomLog.LogLine(EnvRoomMsg);
-			//            SR.WriteLine(EnvRoomMsg);
-			//            SR.Close();
+            for(int i=0;i<CE.Count;i++)
+            {
+                EnvRoomMsg += CE[i].LongName + ",";
+            }
+            
+            EnvRoomLog.LogLine(EnvRoomMsg);
+//            SR.WriteLine(EnvRoomMsg);
+//            SR.Close();			
 		}
 		
 		/// <summary>
-		/// Writing to log a sample of Environmental Room
+		/// Writing to log a sample of Environmental Room 
 		/// </summary>
 		void LogEnvRoom()
 		{
 			EnvControlerIO CIO = new EnvControlerIO();
 			List<EnvRoomControler.ControllerEntry> CE = CIO.GetCurentValues();
-			string EnvRoomMsg = ",\t";//DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss") + ",\t";
+			string EnvRoomMsg = ",";//DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss") + ",\t";
 			
 //			System.IO.FileInfo EnvRoomLogFile = new FileInfo(EnvLogFileName);
 //			StreamWriter SR = new StreamWriter(EnvLogFileName,true);
 			
-			for(int i=0;i<CE.Count;i++)
-			{
-				EnvRoomMsg += CE[i].EntryValue +",\t";
-			}
-			
-			EnvRoomLog.LogLine(EnvRoomMsg);
-			//            SR.WriteLine(EnvRoomMsg);
-			//            SR.Close();
+            for(int i=0;i<CE.Count;i++)
+            {
+                EnvRoomMsg += CE[i].EntryValue +",";
+            }
+            
+            EnvRoomLog.LogLine(EnvRoomMsg);
+//            SR.WriteLine(EnvRoomMsg);
+//            SR.Close();			
 		}
 		
 		#endregion
 		
-		
-
 	}
 }

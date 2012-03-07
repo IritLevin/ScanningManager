@@ -6,6 +6,11 @@
  * 
  */
 
+/* Bug Fix:
+ * --------
+ * 10.03.11 Irit Levin-Reisman: Checking the status of connection after disabling for each method
+ * 
+ */
 
 // ScanningManager controls an array of scanners for time lapsed serial scanning.
 // Copyright 2010 Irit Levin Reisman published under GPLv3,
@@ -100,18 +105,27 @@ namespace ScanningManager
 					// Disconnect
 					if (PowerMethod == (int)ScnPowerMethod.DEVCON)
 					{
-						Devcon.DevconDisable(InstanceID);				
+						Devcon.DevconDisable(InstanceID);
+						System.Threading.Thread.Sleep(500);
+						if (Devcon.GetDeviceStatus(InstanceID)!=(int)ConnectionStatus.Disabled)
+						{
+							RT = false;
+						}
 					}
 					else if (PowerMethod == (int)ScnPowerMethod.RELAY)
 					{
 						Devcon.DevconDisable(InstanceID);
 						PowerOff();
+						System.Threading.Thread.Sleep(500);
+						if (Devcon.GetDeviceStatus(InstanceID)!=(int)ConnectionStatus.Disconnected)
+						{
+							RT = false;
+						}
 					}	
 					
 					// Check if got disconnected
-					if (Devcon.GetDeviceStatus(InstanceID)==(int)ConnectionStatus.Connected && PowerMethod!=(int)ScnPowerMethod.NONE)
-					{
-						RT = false;		
+					if (RT == false)
+					{	
 						string errMsg = "Scanner "+ScannerName+" was not disconnected. Trial: " + trial.ToString();
 						scnMngrLog.LogWarn(errMsg);
 						System.Threading.Thread.Sleep(1000);
@@ -220,10 +234,17 @@ namespace ScanningManager
 			
 			for (int i=0; i<_ImagingDevicesList.Count; i++)
 			{
-				if (_ImagingDevicesList[i].Name == ScannerName)
+				
+				if (ScannerName.IndexOf(_ImagingDevicesList[i].Name) !=-1)
 				{
 					index = i;
 				}
+
+
+//				if (_ImagingDevicesList[i].Name == ScannerName)
+//				{
+//					index = i;
+//				}
 			}
 			return index;
 		}

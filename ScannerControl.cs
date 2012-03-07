@@ -33,6 +33,7 @@ using System.Runtime.InteropServices;
 using WIA ;
 using System.Threading ;
 using System.Diagnostics;
+using System.Configuration;
 
 namespace ScanningManager
 {
@@ -88,15 +89,14 @@ namespace ScanningManager
 			return DeviceInfoCollection ;			
 		}
 		
+		
 		/// <summary>
 		/// Picks a scanner from the connected scanners list
 		/// </summary>
 		/// <param name="_myDeviceInfo">selected scanner</param>
-		/// <param name="_ScanningDPI">scanning resolution</param>
-		public void SelectDevice(object _myDeviceInfo,int _ScanningDPI )
+		public void SelectDevice(object _myDeviceInfo)
 		{
 			myDeviceInfo = (DeviceInfo)_myDeviceInfo;
-			ScanningDPI = _ScanningDPI;
 		}
 		
 		#endregion
@@ -114,8 +114,34 @@ namespace ScanningManager
 			objScannerPowerManager.InitScannerPowerManager(ScannerName);
 			Enable();
 			Scanner = _myDeviceInfo.Connect();
-			wiaItem = Scanner.Items[1];
-			SelectPicsProperties(ScanningDPI);	
+			wiaItem = Scanner.Items[1];	
+			InitScannerProperties();
+		}
+
+		/// <summary>
+		/// Setting the properties mentioned in the configuration file
+		/// </summary>
+		private void InitScannerProperties()
+		{
+			string[] ScnrPropsNames = ConfigurationManager.AppSettings["ScnrPropsNames"].Split(',');
+			string[] ScnrPropsVals = ConfigurationManager.AppSettings["ScnrPropsVals"].Split(',');
+			object ScnrProperty;
+			object PropVal;
+				
+			
+			if (ScnrPropsNames.Length > ScnrPropsVals.Length)
+			{
+				throw new ScnCtrlException("Not enough ScnrPropsVals to initialize ScnrPropsNames");
+			}
+			
+			for(int j = 0; j < ScnrPropsNames.Length; ++j)
+			{
+				ScnrProperty = ScnrPropsNames[j];
+				PropVal      = Convert.ToInt32(ScnrPropsVals[j]);
+				Properties Prop = wiaItem.Properties;
+		
+				((WIA.Property)Prop.get_Item(ref ScnrProperty)).set_Value(ref PropVal);						                
+			}
 		}
 		
 		/// <summary>
@@ -226,22 +252,6 @@ namespace ScanningManager
 		
 		#region image handling
 		
-		/// <summary>
-		/// Sets picture properties
-		/// </summary>
-		/// <param name="DPI">resolution</param>
-		private void SelectPicsProperties(int DPI)
-		{
-			object hr = "Horizontal Resolution";
-			object vr = "Vertical Resolution";
-			object res = DPI;
-			
-			
-			Properties Prop = wiaItem.Properties;
-			
-			((WIA.Property)Prop.get_Item(ref hr)).set_Value(ref res);
-			((WIA.Property)Prop.get_Item(ref vr)).set_Value(ref res);
-		}
 		
 		/// <summary>
 		/// 

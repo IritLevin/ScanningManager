@@ -14,8 +14,8 @@
 		<add key="EnvRoomExist" value="1" />	<!-- Save environmental data -->
 		<add key="EnableDelay" value="1000" />	<!-- Time interval (in ms) between enabling scanner and scanning -->
 		<add key="DisableDelay" value="1000" />	<!-- Time interval (in ms) between disabling scanner and continuing -->
-		<add key="ScnrPropsNames" value="Horizontal Resolution,Vertical Resolution" /> <!-- An array of scanner properties that needs to be changed from default-->
-		<add key="ScnrPropsVals" value="300,300" /> <!-- An array of properties values -->
+		<add key="ScnrPropsNames" value="Horizontal Resolution,Vertical Resolution,Data Type,Vertical Extent,Horizontal Extent" /> <!-- An array of scanner properties that needs to be changed from default-->
+		<add key="ScnrPropsVals" value="300,300,3,3501,2550" /> <!-- An array of properties values -->
 		
 		
 		<!-- Email and SMS sender using standard SMTP-->
