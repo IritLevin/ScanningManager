@@ -26,12 +26,13 @@
 //    You should have received a copy of the GNU General Public License
 //    along with ScanningManager.  If not, see <http://www.gnu.org/licenses/>.
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
-using WIA ;
-using System.Threading ;
+using WIA;
+using System.Threading;
 using System.Diagnostics;
 using System.Configuration;
 
@@ -42,9 +43,9 @@ namespace ScanningManager
 	/// </summary>
 	public class ScannerControl
 	{
-		private	DeviceManager  DeviceManager;
+//		private	DeviceManager  DeviceManager;
 		private ScannerPowerManager  objScannerPowerManager;
-		private DeviceInfos  DeviceInfoCollection;
+//		private DeviceInfos  DeviceInfoCollection;
 		private Item wiaItem;
 		
 		private Device Scanner;
@@ -60,10 +61,11 @@ namespace ScanningManager
 		public ScannerControl()
 		{
 			//System.Diagnostics.Debug.WriteLine(@"DeviceManager = new DeviceManager();");
-			DeviceManager = new DeviceManager();
-			DeviceInfoCollection = DeviceManager.DeviceInfos  ;
+//			DeviceManager = new DeviceManager();
+//			DeviceInfoCollection = DeviceManager.DeviceInfos  ;
 			objScannerPowerManager = new ScannerPowerManager();
 			scnMngrLog = new ScnMngrLog();
+			DisableAllScanners();
 		}
 
 		/// <summary>
@@ -72,10 +74,11 @@ namespace ScanningManager
 		/// <param name="_LogFileName">Log file name</param>
 		public ScannerControl(string _LogFileName)
 		{
-			DeviceManager = new DeviceManager();
-			DeviceInfoCollection = DeviceManager.DeviceInfos  ;
+//			DeviceManager = new DeviceManager();
+//			DeviceInfoCollection = DeviceManager.DeviceInfos  ;
 			objScannerPowerManager = new ScannerPowerManager(_LogFileName);
 			scnMngrLog = new ScnMngrLog(_LogFileName);
+//			DisableAllScanners();
 		}
 				
 		#region scanners list handling
@@ -83,12 +86,22 @@ namespace ScanningManager
 		/// <summary>
 		/// Gets a list of scanners
 		/// </summary>
-		/// <returns>Connected scanners</returns>
+		/// <returns>Connected scanners (DeviceInfos)</returns>
 		public  DeviceInfos  GetConnectedDevices()
 		{
+			DeviceManager DeviceManager = new DeviceManager();
+			DeviceInfos DeviceInfoCollection = DeviceManager.DeviceInfos;
 			return DeviceInfoCollection ;			
 		}
 		
+		/// <summary>
+		/// Gets a list of scanners
+		/// </summary>
+		/// <returns>Connected scanners (ImagingDevice List)</returns>
+		public List<ImagingDevice> GetImagingDevicesList()
+		{
+			return objScannerPowerManager.GetImagingDevicesList();
+		}
 		
 		/// <summary>
 		/// Picks a scanner from the connected scanners list
@@ -117,7 +130,28 @@ namespace ScanningManager
 			wiaItem = Scanner.Items[1];	
 			InitScannerProperties();
 		}
+		
+		// updated 4.12 - Irit L.Reisman
 
+		private void InitScanner()
+		{	
+			objScannerPowerManager.InitScannerPowerManager(ScannerName);
+			Enable();
+			DeviceInfos DeviceInfosList = GetConnectedDevices();
+			if (DeviceInfosList.Count>1)
+			{
+				DisableAllScanners();
+				throw new ScnCtrlException("More than one scanner are connected");
+			}
+			object ind = 1;
+			myDeviceInfo = DeviceInfosList.get_Item(ref ind);
+			
+			Scanner = myDeviceInfo.Connect();
+			wiaItem = Scanner.Items[1];	
+			InitScannerProperties();
+		}
+		// end update 4.12
+		
 		/// <summary>
 		/// Setting the properties mentioned in the configuration file
 		/// </summary>
@@ -207,6 +241,11 @@ namespace ScanningManager
 					
 					trial++;
 				}
+				finally
+				{
+					// updated Irit L.Reisman 5.12 - try catch might be needed
+					Disable();
+				}
 			}
 			if (!RT)
 			{
@@ -215,7 +254,103 @@ namespace ScanningManager
 			
 			return myBitmap;				
 		}
+		
+		// update 4.12 - Irit L.Reisman	
+		/// <summary>
+		/// Takes a picture
+		/// </summary>
+		/// <param name="ScannerName"></param>
+		/// <param name="FileName"></param>
+		/// <returns></returns>
+		public Bitmap Scan(string _ScannerName, string FileName)
+		{	
+			ScannerName = _ScannerName;
+			
+			int trial = 1;
+			int MaxTrials = 2;
+			bool RT = false;			
 				
+			while (trial<=MaxTrials && !RT)
+			{
+				try
+				{
+					InitScanner();
+					
+					if (Scanner!=null)
+					{
+						// transfer picture to our temporary file
+						string currFilename = Path.GetTempFileName();
+						File.Delete(currFilename);
+						
+						// transfer picture to our temporary file
+						ImageFile IF = (ImageFile)wiaItem.Transfer(FormatID.wiaFormatBMP);
+						IF.SaveFile( currFilename);
+						// Create a Bitmap from the loaded file (Image.FromFile locks the file...)
+						FileStream fs = new FileStream(currFilename, FileMode.Open, FileAccess.Read);
+						
+						// KLUDGE: Must wrap the FromStream Image with a new Bitmap.
+						// Otherwise get OutOfMemoryException later when using ColorMatrix on it.
+						myBitmap = 	 new Bitmap(Image.FromStream(fs));
+						fs.Close();
+						
+						SaveBitmapAsTiff(myBitmap, FileName);
+
+						// Don't leave junk behind!
+						File.Delete(currFilename);
+						
+						System.Threading.Thread.Sleep(10000);
+						
+						Disable();
+						RT = true;
+					}
+					else
+					{
+						throw new ScnCtrlException("Device should be Selected First");
+					}
+				}
+				catch(ScnrPwrMngrException e)
+				{			
+					string errMsg = e.ToString() + Environment.NewLine + "   Trial: " + trial.ToString();
+					scnMngrLog.LogError(errMsg);
+				
+					trial++;	
+				}
+				catch(System.Runtime.InteropServices.COMException e)
+				{
+					string errMsg = e.ToString() + Environment.NewLine + "   Trial: " + trial.ToString();
+					scnMngrLog.LogError(errMsg);
+					
+					trial++;
+				}
+				catch(ScnCtrlException e)
+				{
+					string errMsg = e.ToString() + Environment.NewLine + "   Trial: " + trial.ToString();
+					scnMngrLog.LogError(errMsg);
+				
+					trial++;
+				}
+				catch(System.NullReferenceException e)
+				{
+					string errMsg = e.ToString() + Environment.NewLine + "   Trial: " + trial.ToString();
+					scnMngrLog.LogError(errMsg);
+				
+					trial++;
+				}
+				finally
+				{
+					// updated Irit L.Reisman 5.12 - try catch might be needed
+					Disable();
+				}
+			}
+			if (!RT)
+			{
+				throw new ScnCtrlException("Unable to scan: " + ScannerName);
+			}
+			
+			return myBitmap;				
+		}
+		// end update
+		
 		/// <summary>
 		/// Disables the selected scanner
 		/// </summary>
@@ -226,7 +361,8 @@ namespace ScanningManager
 			try
 			{			
 				objScannerPowerManager.DisableScanner();
-				System.Threading.Thread.Sleep(Delay);
+				// updated Irit L.Reisman 2.5 - trying to avoid so many delays
+//				System.Threading.Thread.Sleep(Delay);
 			}
 			catch(ScnrPwrMngrException e)
 			{			
@@ -244,7 +380,21 @@ namespace ScanningManager
 			int Delay = Convert.ToInt32(System.Configuration.ConfigurationManager.AppSettings["EnableDelay"]);
 			
 			objScannerPowerManager.EnableScanner();
-			System.Threading.Thread.Sleep(Delay);
+			// updated Irit L.Reisman 2.5 - trying to avoid so many delays
+//			System.Threading.Thread.Sleep(Delay);
+		}
+		
+		/// <summary>
+		/// Disables all connected scanners
+		/// </summary>
+		public void DisableAllScanners()
+		{
+			List<ImagingDevice> ImgDev = GetImagingDevicesList();
+			for (int i=0; i<ImgDev.Count; i++)
+			{
+				objScannerPowerManager.InitScannerPowerManager(ImgDev[i].Name);
+				Disable();
+			}
 		}
 		
 		#endregion

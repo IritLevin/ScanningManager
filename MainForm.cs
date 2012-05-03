@@ -55,8 +55,8 @@ namespace ScanningManager
 	/// </summary>
 	public partial class MainForm : Form
 	{
-		ScannerControl myScannerControl;
-		ScannerControl[] Scanners;
+//		ScannerControl myScannerControl;
+//		ScannerControl[] Scanners;
 		int NumberOfScanners;
 		Bitmap[] LastScans;
 		DateTime NextScan;
@@ -76,7 +76,7 @@ namespace ScanningManager
 			//
 			InitializeComponent();
 			LogFileName = System.Configuration.ConfigurationManager.AppSettings["ImagesFolder"] + @"\LogFile.txt";
-			myScannerControl = new ScannerControl(LogFileName);
+//			myScannerControl = new ScannerControl(LogFileName);
 			
 		}
 		
@@ -121,17 +121,30 @@ namespace ScanningManager
 			calcExperimentEnd(this, new EventArgs());
 			tbOutputPath.Text =System.Configuration.ConfigurationManager.AppSettings["ImagesFolder"];
 			
+//			// creating available scanners list
+//			DeviceInfos DIs =  myScannerControl.GetConnectedDevices();
+//			ScannersList = new DeviceInfo[DIs.Count];
+//			
+//			for (int i=0;i<DIs.Count;i++)
+//			{
+//				object ind = i+1;
+//				////System.Diagnostics.Debug.WriteLine(@"ScannersList[i]=DIs.get_Item(ref ind);");
+//				ScannersList[i]=DIs.get_Item(ref ind);
+//				object propname = "Name";
+//				lbScannersList.Items.Add(ScannersList[i].Properties.get_Item(ref propname).get_Value()) ;
+//			}
+			
 			// creating available scanners list
-			DeviceInfos DIs =  myScannerControl.GetConnectedDevices();
-			ScannersList = new DeviceInfo[DIs.Count];
-			for (int i=0;i<DIs.Count;i++)
+			// updated 4.12 - Irit L. Reisman
+			// 		Building the list of the scanners from the devcon result
+			ScannerControl tmpScannerControl = new ScannerControl();
+			List<ImagingDevice> ImagingDeviceList = tmpScannerControl.GetImagingDevicesList();
+			foreach (ImagingDevice ImDev in ImagingDeviceList)
 			{
-				object ind = i+1;
-				////System.Diagnostics.Debug.WriteLine(@"ScannersList[i]=DIs.get_Item(ref ind);");
-				ScannersList[i]=DIs.get_Item(ref ind);
-				object propname = "Name";
-				lbScannersList.Items.Add(ScannersList[i].Properties.get_Item(ref propname).get_Value()) ;
+				lbScannersList.Items.Add(ImDev.Name);
 			}
+			// end update
+			
 			StatusLabel.Text = "";
 			if (System.Configuration.ConfigurationManager.AppSettings["EnvRoomExist"]=="1")
 			{
@@ -163,7 +176,7 @@ namespace ScanningManager
 				{
 					StatusLabel.Text = "please wait while scanners are reconnected";
 					this.Refresh();
-					EnableAllScanners();
+//					EnableAllScanners();
 					if (scnMngrLog!= null)
 					{
 						scnMngrLog.LogInfo("Closing ScanningManager");
@@ -172,7 +185,7 @@ namespace ScanningManager
 			}
 			else
 			{
-				EnableAllScanners();
+//				EnableAllScanners();
 				scnMngrLog.LogWarn("Windows shutdown. Closing ScanningManager");
 			}
 		}
@@ -273,7 +286,7 @@ namespace ScanningManager
 				// ---------------------------------------------------------
 				AllScannersEnabled = false;
 				NumberOfScanners = lbScannersList.SelectedItems.Count;
-				Scanners = new ScannerControl[NumberOfScanners];
+//				Scanners = new ScannerControl[NumberOfScanners];
 				LastScans = new Bitmap[NumberOfScanners];
 				
 				ListBox.SelectedIndexCollection SelectedInd  = lbScannersList.SelectedIndices;
@@ -281,8 +294,8 @@ namespace ScanningManager
 				
 				for ( int i=0;i<NumberOfScanners;i++)
 				{
-					Scanners[i] = new ScannerControl(LogFileName);
-					Scanners[i].SelectDevice( ScannersList[SelectedInd[i]]);
+//					Scanners[i] = new ScannerControl(LogFileName);
+//					Scanners[i].SelectDevice( ScannersList[SelectedInd[i]]);
 					
 					cmbActiveScanners.Items.Add(lbScannersList.SelectedItems[i]);
 					
@@ -340,7 +353,7 @@ namespace ScanningManager
 					gbScanningConfiguration.Enabled   = true;
 					gbExperimentConfiguration.Enabled = true;
 					gbExperimentStatus.Enabled        = true;
-					EnableAllScanners();
+//					EnableAllScanners();
 					string msgText = "Process was stopped by user at: " + DateTime.Now.ToString("dd/MM/yyyy HH:mm");
 					StatusLabel.Text = msgText;
 					scnMngrLog.LogInfo(msgText);
@@ -376,13 +389,16 @@ namespace ScanningManager
 				gbExperimentOwner.Enabled = false;
 				
 				// scanning with all the scanners selected
+				ScannerControl myScannerControl = new ScannerControl(LogFileName);
 				for (int i=0 ; i<NumberOfScanners;i++)
 				{
 					try
 					{
 						StatusLabel.Text = @"Scanning is in progress (scanner " + (i+1).ToString() + @"/" + NumberOfScanners.ToString() + ")";
 						this.Refresh();
-						LastScans[i]= Scanners[i].Scan(tbOutputPath.Text +  @"\" + tbFileName.Text + @"_" + i.ToString()+ @"_" + GetDateString(DateTime.Now)  +@".tif");
+//						LastScans[i]= Scanners[i].Scan(tbOutputPath.Text +  @"\" + tbFileName.Text + @"_" + i.ToString()+ @"_" + GetDateString(DateTime.Now)  +@".tif");
+						myScannerControl.Scan(cmbActiveScanners.Items[i].ToString(),
+							tbOutputPath.Text +  @"\" + tbFileName.Text + @"_" + i.ToString()+ @"_" + GetDateString(DateTime.Now)  +@".tif");
 					}
 					catch (ScnMngrException e)
 					{
@@ -465,33 +481,33 @@ namespace ScanningManager
 			}
 		}
 		
-		/// <summary>
-		/// Enable all scanners
-		/// </summary>
-		private void EnableAllScanners()
-		{
-			if (Scanners!=null && !AllScannersEnabled)
-			{
-				try
-				{
-					for ( int i=0;i<Scanners.Length;i++)
-					{
-						Scanners[i].Enable();
-					}
-					AllScannersEnabled = true;
-				}
-				catch (ScnMngrException e)
-				{
-					scnMngrLog.LogError(e.ToString());
-					tbLog.Text =
-						DateTime.Now.ToShortDateString() + " " +
-						DateTime.Now.ToShortTimeString() +" - " +
-						e.Message.ToString() +
-						Environment.NewLine + tbLog.Text;
-				}
-				
-			}
-		}
+//		/// <summary>
+//		/// Enable all scanners
+//		/// </summary>
+//		private void EnableAllScanners()
+//		{
+//			if (Scanners!=null && !AllScannersEnabled)
+//			{
+//				try
+//				{
+//					for ( int i=0;i<Scanners.Length;i++)
+//					{
+//						Scanners[i].Enable();
+//					}
+//					AllScannersEnabled = true;
+//				}
+//				catch (ScnMngrException e)
+//				{
+//					scnMngrLog.LogError(e.ToString());
+//					tbLog.Text =
+//						DateTime.Now.ToShortDateString() + " " +
+//						DateTime.Now.ToShortTimeString() +" - " +
+//						e.Message.ToString() +
+//						Environment.NewLine + tbLog.Text;
+//				}
+//				
+//			}
+//		}
 		
 		/// <summary>
 		/// Updating the progress till next scan
@@ -525,7 +541,7 @@ namespace ScanningManager
 				lblProgress.Text = @"Time Left: 00:00:00";
 				lblTimeToNextScan.Text = @"Time To Next Scan: 00:00:00";
 				StatusLabel.Text =  @"Experiment Ended";
-				EnableAllScanners();
+//				EnableAllScanners();
 				ScanningTimer.Stop();
 				UpdateProgressTimer.Stop();
 				gbScanningConfiguration.Enabled   = true;
@@ -700,17 +716,30 @@ namespace ScanningManager
 		void StartEnvRoomLogging()
 		{
 			EnvLogFileName = tbOutputPath.Text +  @"\EnvRoom.csv";
-			EnvControlerIO CIO    = new EnvControlerIO();
-			List<EnvRoomControler.ControllerEntry> CE = CIO.GetCurentValues();
-			string EnvRoomMsg     = ",\t";
-			
 			EnvRoomLog = new ScnMngrLog(EnvLogFileName);
-//			System.IO.FileInfo EnvRoomLogFile = new FileInfo(EnvLogFileName);
-//			StreamWriter SR = new StreamWriter(EnvLogFileName,true);
-			
-			for(int i=0;i<CE.Count;i++)
+			string EnvRoomMsg     = ",\t";
+			try
 			{
-				EnvRoomMsg += CE[i].LongName + ",\t";
+				EnvControlerIO CIO    = new EnvControlerIO();
+				List<EnvRoomControler.ControllerEntry> CE = CIO.GetCurentValues();
+								
+	//			System.IO.FileInfo EnvRoomLogFile = new FileInfo(EnvLogFileName);
+	//			StreamWriter SR = new StreamWriter(EnvLogFileName,true);
+				
+				for(int i=0;i<CE.Count;i++)
+				{
+					EnvRoomMsg += CE[i].LongName + ",\t";
+				}
+			}
+			catch (Exception)
+			{
+				EnvRoomMsg += "Error reading EnvRoom";
+				scnMngrLog.LogError("Error reading EnvRoom");
+				tbLog.Text =
+						DateTime.Now.ToShortDateString() + " " +
+						DateTime.Now.ToShortTimeString() +" - " +
+						"Error reading EnvRoom" +
+						Environment.NewLine + tbLog.Text;						
 			}
 			
 			EnvRoomLog.LogLine(EnvRoomMsg);
@@ -723,16 +752,30 @@ namespace ScanningManager
 		/// </summary>
 		void LogEnvRoom()
 		{
-			EnvControlerIO CIO = new EnvControlerIO();
-			List<EnvRoomControler.ControllerEntry> CE = CIO.GetCurentValues();
-			string EnvRoomMsg = ",\t";//DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss") + ",\t";
-			
-//			System.IO.FileInfo EnvRoomLogFile = new FileInfo(EnvLogFileName);
-//			StreamWriter SR = new StreamWriter(EnvLogFileName,true);
-			
-			for(int i=0;i<CE.Count;i++)
+			string EnvRoomMsg = ",\t";
+			try
 			{
-				EnvRoomMsg += CE[i].EntryValue +",\t";
+				EnvControlerIO CIO = new EnvControlerIO();
+				List<EnvRoomControler.ControllerEntry> CE = CIO.GetCurentValues();
+				//string EnvRoomMsg = ",\t";//DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss") + ",\t";
+				
+	//			System.IO.FileInfo EnvRoomLogFile = new FileInfo(EnvLogFileName);
+	//			StreamWriter SR = new StreamWriter(EnvLogFileName,true);
+				
+				for(int i=0;i<CE.Count;i++)
+				{
+					EnvRoomMsg += CE[i].EntryValue +",\t";
+				}
+			}
+			catch (Exception)
+			{
+				EnvRoomMsg += "Error reading EnvRoom";
+				scnMngrLog.LogError("Error reading EnvRoom");
+				tbLog.Text =
+						DateTime.Now.ToShortDateString() + " " +
+						DateTime.Now.ToShortTimeString() +" - " +
+						"Error reading EnvRoom" +
+						Environment.NewLine + tbLog.Text;
 			}
 			
 			EnvRoomLog.LogLine(EnvRoomMsg);

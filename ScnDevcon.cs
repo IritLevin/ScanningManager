@@ -90,7 +90,8 @@ namespace ScanningManager
 		}
 		
 		/// <summary>
-		/// Analyzes the text returned from devcon 
+		/// Analyzes the text returned from devcon
+		/// Update: Irit 4.2012 - getting the scanner names from the configuration file.		
 		/// </summary>
 		/// <returns>A list of ImagingDevice</returns>
 		private List<ImagingDevice> AnalayzeReturnedData()
@@ -99,15 +100,32 @@ namespace ScanningManager
 			int NOR =  ReturnedData.Split('\n').Length ;		// Number Of Rows
 			string[] ReturnedDataArray = new string[NOR];
 			ImagingDevice tmpImagingDevice;
+			string[] ScannerNames = ConfigurationManager.AppSettings["ScannerNames"].Split(',');
+			string[] InstIDList = ConfigurationManager.AppSettings["InstanceIDs"].Split(',');
 			
 			ReturnedDataArray = ReturnedData.Split('\n');
 			
+			// Finding the instance id's from the devcon query
 			for (int i=0; i<NOR; i++)
 			{
 				if (ReturnedDataArray[i].IndexOf(@"Name:")>0)
 				{
 					tmpImagingDevice.InstanceID = ReturnedDataArray[i-1].Trim();
-					tmpImagingDevice.Name = ReturnedDataArray[i].Trim().Remove(0,6);
+					tmpImagingDevice.Name = null;
+					// matching the instance id to scanner's name
+					for(int k=0; k<InstIDList.Length; k++)
+					{
+						if(InstIDList[k] == tmpImagingDevice.InstanceID)
+						{
+							tmpImagingDevice.Name = ScannerNames[k];
+						}
+					}
+					
+					if (tmpImagingDevice.Name == null)
+					{
+						throw new ScnMngrException("Missing scanner name in the configuration file for InstanceID: " + tmpImagingDevice.InstanceID);
+					}
+//					tmpImagingDevice.Name = ReturnedDataArray[i].Trim().Remove(0,6);
 					ImagingDeviceList.Add(tmpImagingDevice);
 				}				
 			}
@@ -188,6 +206,7 @@ namespace ScanningManager
 			processThread.IsBackground = true;
 			processThread.Start();
 			processThread.Join();
+			// updated Irit L.Reisman 2.5 - trying to avoid so many delays
 			System.Threading.Thread.Sleep(1000);
 		}
 		
@@ -212,6 +231,7 @@ namespace ScanningManager
 			processThread.IsBackground = true;
 			processThread.Start();
 			processThread.Join();
+			// updated Irit L.Reisman 2.5 - trying to avoid so many delays
 			System.Threading.Thread.Sleep(1000);
 		}
 		

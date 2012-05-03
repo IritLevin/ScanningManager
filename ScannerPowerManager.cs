@@ -106,7 +106,8 @@ namespace ScanningManager
 					if (PowerMethod == (int)ScnPowerMethod.DEVCON)
 					{
 						Devcon.DevconDisable(InstanceID);
-						System.Threading.Thread.Sleep(500);
+						// updated Irit L.Reisman 2.5 - trying to avoid so many delays
+//						System.Threading.Thread.Sleep(500);
 						if (Devcon.GetDeviceStatus(InstanceID)!=(int)ConnectionStatus.Disabled)
 						{
 							RT = false;
@@ -211,7 +212,7 @@ namespace ScanningManager
 			}
 			else
 			{
-				throw new ScnrPwrMngrException("Can not find instance id " + ScannerName);
+				throw new ScnrPwrMngrException("Can not find instance id of scanner " + ScannerName);
 			}
 			
 //			for (int i=0; i<ImagingDevicesList.Count; i++)
