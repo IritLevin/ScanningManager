@@ -43,9 +43,7 @@ namespace ScanningManager
 	/// </summary>
 	public class ScannerControl
 	{
-//		private	DeviceManager  DeviceManager;
 		private ScannerPowerManager  objScannerPowerManager;
-//		private DeviceInfos  DeviceInfoCollection;
 		private Item wiaItem;
 		
 		private Device Scanner;
@@ -60,9 +58,6 @@ namespace ScanningManager
 		/// </summary>
 		public ScannerControl()
 		{
-			//System.Diagnostics.Debug.WriteLine(@"DeviceManager = new DeviceManager();");
-//			DeviceManager = new DeviceManager();
-//			DeviceInfoCollection = DeviceManager.DeviceInfos  ;
 			objScannerPowerManager = new ScannerPowerManager();
 			scnMngrLog = new ScnMngrLog();
 			DisableAllScanners();
@@ -74,11 +69,8 @@ namespace ScanningManager
 		/// <param name="_LogFileName">Log file name</param>
 		public ScannerControl(string _LogFileName)
 		{
-//			DeviceManager = new DeviceManager();
-//			DeviceInfoCollection = DeviceManager.DeviceInfos  ;
 			objScannerPowerManager = new ScannerPowerManager(_LogFileName);
 			scnMngrLog = new ScnMngrLog(_LogFileName);
-//			DisableAllScanners();
 		}
 				
 		#region scanners list handling

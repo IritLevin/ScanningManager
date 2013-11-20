@@ -55,8 +55,6 @@ namespace ScanningManager
 	/// </summary>
 	public partial class MainForm : Form
 	{
-//		ScannerControl myScannerControl;
-//		ScannerControl[] Scanners;
 		int NumberOfScanners;
 		Bitmap[] LastScans;
 		DateTime NextScan;
@@ -75,9 +73,7 @@ namespace ScanningManager
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			InitializeComponent();
-			LogFileName = System.Configuration.ConfigurationManager.AppSettings["ImagesFolder"] + @"\LogFile.txt";
-//			myScannerControl = new ScannerControl(LogFileName);
-			
+			LogFileName = System.Configuration.ConfigurationManager.AppSettings["ImagesFolder"] + @"\LogFile.txt";			
 		}
 		
 		void calcExperimentEnd(object sender, EventArgs e)
@@ -120,20 +116,7 @@ namespace ScanningManager
 			dtpStartDateTime.Value = DateTime.Now;
 			calcExperimentEnd(this, new EventArgs());
 			tbOutputPath.Text =System.Configuration.ConfigurationManager.AppSettings["ImagesFolder"];
-			
-//			// creating available scanners list
-//			DeviceInfos DIs =  myScannerControl.GetConnectedDevices();
-//			ScannersList = new DeviceInfo[DIs.Count];
-//			
-//			for (int i=0;i<DIs.Count;i++)
-//			{
-//				object ind = i+1;
-//				////System.Diagnostics.Debug.WriteLine(@"ScannersList[i]=DIs.get_Item(ref ind);");
-//				ScannersList[i]=DIs.get_Item(ref ind);
-//				object propname = "Name";
-//				lbScannersList.Items.Add(ScannersList[i].Properties.get_Item(ref propname).get_Value()) ;
-//			}
-			
+						
 			// creating available scanners list
 			// updated 4.12 - Irit L. Reisman
 			// 		Building the list of the scanners from the devcon result
@@ -176,7 +159,6 @@ namespace ScanningManager
 				{
 					StatusLabel.Text = "please wait while scanners are reconnected";
 					this.Refresh();
-//					EnableAllScanners();
 					if (scnMngrLog!= null)
 					{
 						scnMngrLog.LogInfo("Closing ScanningManager");
@@ -185,7 +167,6 @@ namespace ScanningManager
 			}
 			else
 			{
-//				EnableAllScanners();
 				scnMngrLog.LogWarn("Windows shutdown. Closing ScanningManager");
 			}
 		}
@@ -286,17 +267,13 @@ namespace ScanningManager
 				// ---------------------------------------------------------
 				AllScannersEnabled = false;
 				NumberOfScanners = lbScannersList.SelectedItems.Count;
-//				Scanners = new ScannerControl[NumberOfScanners];
 				LastScans = new Bitmap[NumberOfScanners];
 				
 				ListBox.SelectedIndexCollection SelectedInd  = lbScannersList.SelectedIndices;
 				cmbActiveScanners.Items.Clear();
 				
 				for ( int i=0;i<NumberOfScanners;i++)
-				{
-//					Scanners[i] = new ScannerControl(LogFileName);
-//					Scanners[i].SelectDevice( ScannersList[SelectedInd[i]]);
-					
+				{					
 					cmbActiveScanners.Items.Add(lbScannersList.SelectedItems[i]);
 					
 				}
@@ -353,7 +330,6 @@ namespace ScanningManager
 					gbScanningConfiguration.Enabled   = true;
 					gbExperimentConfiguration.Enabled = true;
 					gbExperimentStatus.Enabled        = true;
-//					EnableAllScanners();
 					string msgText = "Process was stopped by user at: " + DateTime.Now.ToString("dd/MM/yyyy HH:mm");
 					StatusLabel.Text = msgText;
 					scnMngrLog.LogInfo(msgText);
@@ -396,9 +372,8 @@ namespace ScanningManager
 					{
 						StatusLabel.Text = @"Scanning is in progress (scanner " + (i+1).ToString() + @"/" + NumberOfScanners.ToString() + ")";
 						this.Refresh();
-//						LastScans[i]= Scanners[i].Scan(tbOutputPath.Text +  @"\" + tbFileName.Text + @"_" + i.ToString()+ @"_" + GetDateString(DateTime.Now)  +@".tif");
-						myScannerControl.Scan(cmbActiveScanners.Items[i].ToString(),
-							tbOutputPath.Text +  @"\" + tbFileName.Text + @"_" + i.ToString()+ @"_" + GetDateString(DateTime.Now)  +@".tif");
+						LastScans[i]= myScannerControl.Scan(cmbActiveScanners.Items[i].ToString(),
+							tbOutputPath.Text +  @"\" + tbFileName.Text + @"_" + cmbActiveScanners.Items[i].ToString()+ @"_" + GetDateString(DateTime.Now)  +@".tif");
 					}
 					catch (ScnMngrException e)
 					{
@@ -481,33 +456,7 @@ namespace ScanningManager
 			}
 		}
 		
-//		/// <summary>
-//		/// Enable all scanners
-//		/// </summary>
-//		private void EnableAllScanners()
-//		{
-//			if (Scanners!=null && !AllScannersEnabled)
-//			{
-//				try
-//				{
-//					for ( int i=0;i<Scanners.Length;i++)
-//					{
-//						Scanners[i].Enable();
-//					}
-//					AllScannersEnabled = true;
-//				}
-//				catch (ScnMngrException e)
-//				{
-//					scnMngrLog.LogError(e.ToString());
-//					tbLog.Text =
-//						DateTime.Now.ToShortDateString() + " " +
-//						DateTime.Now.ToShortTimeString() +" - " +
-//						e.Message.ToString() +
-//						Environment.NewLine + tbLog.Text;
-//				}
-//				
-//			}
-//		}
+
 		
 		/// <summary>
 		/// Updating the progress till next scan
@@ -541,7 +490,6 @@ namespace ScanningManager
 				lblProgress.Text = @"Time Left: 00:00:00";
 				lblTimeToNextScan.Text = @"Time To Next Scan: 00:00:00";
 				StatusLabel.Text =  @"Experiment Ended";
-//				EnableAllScanners();
 				ScanningTimer.Stop();
 				UpdateProgressTimer.Stop();
 				gbScanningConfiguration.Enabled   = true;
@@ -723,8 +671,6 @@ namespace ScanningManager
 				EnvControlerIO CIO    = new EnvControlerIO();
 				List<EnvRoomControler.ControllerEntry> CE = CIO.GetCurentValues();
 								
-	//			System.IO.FileInfo EnvRoomLogFile = new FileInfo(EnvLogFileName);
-	//			StreamWriter SR = new StreamWriter(EnvLogFileName,true);
 				
 				for(int i=0;i<CE.Count;i++)
 				{
@@ -743,8 +689,6 @@ namespace ScanningManager
 			}
 			
 			EnvRoomLog.LogLine(EnvRoomMsg);
-			//            SR.WriteLine(EnvRoomMsg);
-			//            SR.Close();
 		}
 		
 		/// <summary>
@@ -757,10 +701,6 @@ namespace ScanningManager
 			{
 				EnvControlerIO CIO = new EnvControlerIO();
 				List<EnvRoomControler.ControllerEntry> CE = CIO.GetCurentValues();
-				//string EnvRoomMsg = ",\t";//DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss") + ",\t";
-				
-	//			System.IO.FileInfo EnvRoomLogFile = new FileInfo(EnvLogFileName);
-	//			StreamWriter SR = new StreamWriter(EnvLogFileName,true);
 				
 				for(int i=0;i<CE.Count;i++)
 				{
@@ -779,8 +719,6 @@ namespace ScanningManager
 			}
 			
 			EnvRoomLog.LogLine(EnvRoomMsg);
-			//            SR.WriteLine(EnvRoomMsg);
-			//            SR.Close();
 		}
 		
 		#endregion

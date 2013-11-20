@@ -125,7 +125,6 @@ namespace ScanningManager
 					{
 						throw new ScnMngrException("Missing scanner name in the configuration file for InstanceID: " + tmpImagingDevice.InstanceID);
 					}
-//					tmpImagingDevice.Name = ReturnedDataArray[i].Trim().Remove(0,6);
 					ImagingDeviceList.Add(tmpImagingDevice);
 				}				
 			}
@@ -206,8 +205,8 @@ namespace ScanningManager
 			processThread.IsBackground = true;
 			processThread.Start();
 			processThread.Join();
-			// updated Irit L.Reisman 2.5 - trying to avoid so many delays
-			System.Threading.Thread.Sleep(1000);
+			// updated Irit L.Reisman 5.12 - delay is needed
+			System.Threading.Thread.Sleep(2000);
 		}
 		
 		/// <summary>
@@ -231,8 +230,8 @@ namespace ScanningManager
 			processThread.IsBackground = true;
 			processThread.Start();
 			processThread.Join();
-			// updated Irit L.Reisman 2.5 - trying to avoid so many delays
-			System.Threading.Thread.Sleep(1000);
+			// updated Irit L.Reisman 5.12 - delay is needed
+			System.Threading.Thread.Sleep(2000);
 		}
 		
 		/// <summary>

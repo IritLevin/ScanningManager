@@ -215,13 +215,6 @@ namespace ScanningManager
 				throw new ScnrPwrMngrException("Can not find instance id of scanner " + ScannerName);
 			}
 			
-//			for (int i=0; i<ImagingDevicesList.Count; i++)
-//			{
-//				if (ImagingDevicesList[i].Name == ScannerName)
-//				{
-//					InstanceID = @"@" + ImagingDevicesList[i].InstanceID;
-//				}
-//			}
 		}
 		
 		/// <summary>
@@ -240,12 +233,6 @@ namespace ScanningManager
 				{
 					index = i;
 				}
-
-
-//				if (_ImagingDevicesList[i].Name == ScannerName)
-//				{
-//					index = i;
-//				}
 			}
 			return index;
 		}
@@ -262,7 +249,6 @@ namespace ScanningManager
 		/// <summary>
 		/// Gets the relay name and the port of a specific scanner
 		/// </summary>
-		/// <param name="_ScannerName">The name of the scanner as it appears in the scanners list</param>
 		/// <returns>ScannerPowerPort</returns>
 		private ScannerPowerPort GetScannerPortRelay()
 		{
