@@ -1,0 +1,437 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>ScanningManager</name>
+    </assembly>
+    <members>
+        <member name="T:ScanningManager.MainForm">
+            <summary>
+            Description of MainForm.
+            </summary>
+        </member>
+        <member name="M:ScanningManager.MainForm.MainFormFormClosing(System.Object,System.Windows.Forms.FormClosingEventArgs)">
+            <summary>
+            Closing the application
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:ScanningManager.MainForm.ScanningTimerTick(System.Object,System.EventArgs)">
+            <summary>
+            A timer between scans
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:ScanningManager.MainForm.StartTimerTick(System.Object,System.EventArgs)">
+            <summary>
+            A timer to the first scan
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:ScanningManager.MainForm.CbScanStopCheckedChanged(System.Object,System.EventArgs)">
+            <summary>
+            Starts and stops the scanning
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:ScanningManager.MainForm.ScanNow">
+            <summary>
+            For each scanner in the list, takes an image
+            </summary>
+        </member>
+        <member name="M:ScanningManager.MainForm.EnableAllScanners">
+            <summary>
+            Enable all scanners
+            </summary>
+        </member>
+        <member name="M:ScanningManager.MainForm.UpdateNextScanProgress">
+            <summary>
+            Updating the progress till next scan
+            </summary>
+        </member>
+        <member name="M:ScanningManager.MainForm.UpdateExperimentProgress">
+            <summary>
+            Updating the progress till the end of the experiment
+            </summary>
+        </member>
+        <member name="M:ScanningManager.MainForm.Seconds2hhmmssString(System.Int32)">
+            <summary>
+            Converts time in second to hours:minutes:seconds
+            </summary>
+            <param name="TimeInSeconds">Time in seconds</param>
+            <returns>hhnnss</returns>
+        </member>
+        <member name="M:ScanningManager.MainForm.GetDateString(System.DateTime)">
+            <summary>
+            formating a date to string
+            </summary>
+            <param name="_DateTime"></param>
+            <returns>yyyyMMdd_HHmm</returns>
+        </member>
+        <member name="M:ScanningManager.MainForm.CreateDefaultPicture">
+            <summary>
+            Generates a default picture
+            </summary>
+            <returns>Picture of Error Scanning</returns>
+        </member>
+        <member name="M:ScanningManager.MainForm.BtnTestEmailSmsClick(System.Object,System.EventArgs)">
+            <summary>
+            Tests Email sending and SMS messages sending
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:ScanningManager.MainForm.StartLogging">
+            <summary>
+            Initializes log file
+            </summary>
+        </member>
+        <member name="M:ScanningManager.MainForm.StartEnvRoomLogging">
+            <summary>
+            Starts logging environmental room
+            </summary>
+        </member>
+        <member name="M:ScanningManager.MainForm.LogEnvRoom">
+            <summary>
+            Writing to log a sample of Environmental Room
+            </summary>
+        </member>
+        <member name="F:ScanningManager.MainForm.components">
+            <summary>
+            Designer variable used to keep track of non-visual components.
+            </summary>
+        </member>
+        <member name="M:ScanningManager.MainForm.Dispose(System.Boolean)">
+            <summary>
+            Disposes resources used by the form.
+            </summary>
+            <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        </member>
+        <member name="M:ScanningManager.MainForm.InitializeComponent">
+            <summary>
+            This method is required for Windows Forms designer support.
+            Do not change the method contents inside the source code editor. The Forms designer might
+            not be able to load this method if it was changed manually.
+            </summary>
+        </member>
+        <member name="T:ScanningManager.Program">
+            <summary>
+            Class with program entry point.
+            </summary>
+        </member>
+        <member name="M:ScanningManager.Program.Main(System.String[])">
+            <summary>
+            Program entry point.
+            </summary>
+        </member>
+        <member name="T:ScanningManager.ScannerControl">
+            <summary>
+            Controls the scanning process
+            </summary>
+        </member>
+        <member name="M:ScanningManager.ScannerControl.#ctor">
+            <summary>
+            Constructor. 
+            </summary>
+        </member>
+        <member name="M:ScanningManager.ScannerControl.#ctor(System.String)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="_LogFileName">Log file name</param>
+        </member>
+        <member name="M:ScanningManager.ScannerControl.GetConnectedDevices">
+            <summary>
+            Gets a list of scanners
+            </summary>
+            <returns>Connected scanners</returns>
+        </member>
+        <member name="M:ScanningManager.ScannerControl.SelectDevice(System.Object,System.Int32)">
+            <summary>
+            Picks a scanner from the connected scanners list
+            </summary>
+            <param name="_myDeviceInfo">selected scanner</param>
+            <param name="_ScanningDPI">scanning resolution</param>
+        </member>
+        <member name="M:ScanningManager.ScannerControl.InitScanner(WIA.DeviceInfo)">
+            <summary>
+            Connects to a specific scanner and initializes parameters
+            </summary>
+            <param name="_myDeviceInfo">selected scanner</param>
+        </member>
+        <member name="M:ScanningManager.ScannerControl.Scan(System.String)">
+            <summary>
+            Takes a picture
+            </summary>
+            <param name="FileName">the name of the file saved</param>
+            <returns>bitmap picture</returns>
+        </member>
+        <member name="M:ScanningManager.ScannerControl.Disable">
+            <summary>
+            Disables the selected scanner
+            </summary>
+        </member>
+        <member name="M:ScanningManager.ScannerControl.Enable">
+            <summary>
+            Enables the selected scanner
+            </summary>
+        </member>
+        <member name="M:ScanningManager.ScannerControl.SelectPicsProperties(System.Int32)">
+            <summary>
+            Sets picture properties
+            </summary>
+            <param name="DPI">resolution</param>
+        </member>
+        <member name="M:ScanningManager.ScannerControl.GetEncoderInfo(System.String)">
+            <summary>
+            
+            </summary>
+            <param name="mimeType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:ScanningManager.ScannerControl.SaveBitmapAsTiff(System.Drawing.Bitmap,System.String)">
+            <summary>
+            Saves a file of the picture in Tiff format
+            </summary>
+            <param name="myBitmap">bitmap pictures</param>
+            <param name="FileName">the name of the file saved</param>
+        </member>
+        <member name="T:ScanningManager.ScannerPowerManager">
+            <summary>
+            Controls the scanners connected
+            </summary>
+            
+        </member>
+        <member name="M:ScanningManager.ScannerPowerManager.#ctor">
+            <summary>
+            Constructor. Gets Imaging Devices list.
+            </summary>
+        </member>
+        <member name="M:ScanningManager.ScannerPowerManager.#ctor(System.String)">
+            <summary>
+            Constructor. Gets Imaging Devices list.
+            </summary>
+            <param name="_LogFileName">Log file name</param>
+        </member>
+        <member name="M:ScanningManager.ScannerPowerManager.InitScannerPowerManager(System.String)">
+            <summary>
+            Initializes Scanner Power Manager parameters
+            </summary>
+            <param name="_ScannerName">The name of the scanner as it appears in the scanners list</param>
+        </member>
+        <member name="M:ScanningManager.ScannerPowerManager.DisableScanner">
+            <summary>
+            Turns off a specific scanner, by disabling the usb or by relay
+            </summary>
+        </member>
+        <member name="M:ScanningManager.ScannerPowerManager.EnableScanner">
+            <summary>
+            Turns on a specific scanner, by enbling the usb or by relay
+            </summary>
+        </member>
+        <member name="M:ScanningManager.ScannerPowerManager.ScannerName2InstanceId">
+            <summary>
+            Initializes InstanceId of a specific scanner
+            </summary>
+            <param name="_ScannerName">The name of the scanner as it appears in the scanners list</param>
+        </member>
+        <member name="M:ScanningManager.ScannerPowerManager.FindImagingDevice(System.Collections.Generic.List{ScanningManager.ImagingDevice})">
+            <summary>
+            Getting the index of a scanner from a ImagingDevice list
+            </summary>
+            <param name="_ImagingDevicesList">List of imaging devices</param>
+            <returns>The index of the scanner in the list. Return -1 if scanner is not on the list.</returns>
+        </member>
+        <member name="M:ScanningManager.ScannerPowerManager.GetImagingDevicesList">
+            <summary>
+            returns Imaging Devices List
+            </summary>
+            <returns>ImagingDevices List</returns>
+        </member>
+        <member name="M:ScanningManager.ScannerPowerManager.GetScannerPortRelay">
+            <summary>
+            Gets the relay name and the port of a specific scanner
+            </summary>
+            <param name="_ScannerName">The name of the scanner as it appears in the scanners list</param>
+            <returns>ScannerPowerPort</returns>
+        </member>
+        <member name="M:ScanningManager.ScannerPowerManager.GetPowerMethod">
+            <summary>
+            Initializing the power managment method
+            </summary>
+        </member>
+        <member name="M:ScanningManager.ScannerPowerManager.PowerOff">
+            <summary>
+            Shutting off the power of the scanner with the relay
+            </summary>
+        </member>
+        <member name="M:ScanningManager.ScannerPowerManager.PowerOn">
+            <summary>
+            Turns on the power of the scanner with the relay
+            </summary>
+        </member>
+        <member name="T:ScanningManager.ImagingDevice">
+            <summary>
+            Scanner name and instance ID
+            </summary>
+        </member>
+        <member name="T:ScanningManager.ScannerPowerPort">
+            <summary>
+            ADU USB Relay
+            </summary>
+        </member>
+        <member name="F:ScanningManager.ScannerPowerPort.UsbRelayHardware">
+            <summary>
+            HardwareId is writen on the device
+            </summary>
+        </member>
+        <member name="F:ScanningManager.ScannerPowerPort.PortId">
+            <summary>
+            The port where the scanner is connected
+            </summary>
+        </member>
+        <member name="M:ScanningManager.ScannerPowerPort.#ctor(ScanningManager.UsbRelay,System.Int32)">
+            <summary>
+            ScannerPowerPort constructor
+            </summary>
+            <param name="_UsbRelayHardwareId">Hardware ID</param>
+            <param name="_PortId">Port number</param>
+        </member>
+        <member name="T:ScanningManager.ScnDevcon">
+            <summary>
+            This class replaces the computer device manager. 
+            It allows us to get the connected devices and anable and disable them.
+            </summary>
+        </member>
+        <member name="M:ScanningManager.ScnDevcon.#ctor">
+            <summary>
+            Constructor
+            </summary>
+        </member>
+        <member name="M:ScanningManager.ScnDevcon.GetImagingDevices">
+            <summary>
+            Gets connected imaging devices.
+            </summary>
+            <returns>A list of ImagingDevice</returns>
+        </member>
+        <member name="M:ScanningManager.ScnDevcon.RunDevCon2FindImagingDevice">
+            <summary>
+            A thread that runs devcon and finds all connected imaging devices
+            </summary>
+        </member>
+        <member name="M:ScanningManager.ScnDevcon.AnalayzeReturnedData">
+            <summary>
+            Analyzes the text returned from devcon 
+            </summary>
+            <returns>A list of ImagingDevice</returns>
+        </member>
+        <member name="M:ScanningManager.ScnDevcon.GetDeviceStatus(System.String)">
+            <summary>
+            Gets the connection status of the device
+            </summary>
+            <param name="_InstanceID">Device instance id</param>
+            <returns>enum ConnectionStatus: Connected, Disconnected, Disabled</returns>
+        </member>
+        <member name="M:ScanningManager.ScnDevcon.RunDevCon2FindDeviceStatus">
+            <summary>
+            A thread that runs devcon and finds the status of a device
+            </summary>
+        </member>
+        <member name="M:ScanningManager.ScnDevcon.AnalayzeDeviceStatus">
+            <summary>
+            Analyzes the returned data and determines the status
+            </summary>
+            <returns>enum ConnectionStatus: Connected, Disconnected, Disabled</returns>
+        </member>
+        <member name="M:ScanningManager.ScnDevcon.DevconDisable(System.String)">
+            <summary>
+            Shutting off a specific scanner, by disabling the usb using devcon
+            </summary>
+            <param name="_InstanceID">Instance ID of the device</param>
+        </member>
+        <member name="M:ScanningManager.ScnDevcon.RunDevCon2DisableImagingDevice">
+            <summary>
+            A thread that runs devcon and disables a scanner
+            </summary>
+        </member>
+        <member name="M:ScanningManager.ScnDevcon.DevconEnable(System.String)">
+            <summary>
+            Turns on a specific scanner, by enabling the usb using devcon
+            </summary>
+            <param name="_InstanceID">Instance ID of the device</param>
+        </member>
+        <member name="M:ScanningManager.ScnDevcon.RunDevCon2EnableImagingDevice">
+            <summary>
+            A thread that runs devcon and enables a scanner
+            </summary>
+        </member>
+        <member name="T:ScanningManager.ScnMngrException">
+            <summary>
+            A general exception thrown by ScanningManager application
+            </summary>
+        </member>
+        <member name="T:ScanningManager.RelayException">
+            <summary>
+            An exception thrown by UsbRelay
+            </summary>
+        </member>
+        <member name="T:ScanningManager.ScnrPwrMngrException">
+            <summary>
+            An exception thrown by ScannerPowerMannager
+            </summary>
+        </member>
+        <member name="T:ScanningManager.ScnCtrlException">
+            <summary>
+            An exception thrown by ScannerControl
+            </summary>
+        </member>
+        <member name="T:ScanningManager.ScnMngrLog">
+            <summary>
+            Logs messages from the application.
+            </summary>
+        </member>
+        <member name="M:ScanningManager.ScnMngrLog.#ctor">
+            <summary>
+            Constructor
+            </summary>
+        </member>
+        <member name="M:ScanningManager.ScnMngrLog.#ctor(System.String)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="FileName_">Log file name</param>
+        </member>
+        <member name="T:ScanningManager.UsbRelay">
+            <summary>
+            Interacts with the ADU USB Relay
+            </summary>
+        </member>
+        <member name="M:ScanningManager.UsbRelay.#ctor(System.String)">
+            <summary>
+            Constructor. Opens Relay
+            </summary>
+            <param name="_UsbRelayHardwareId">Relay hardware ID</param>
+        </member>
+        <member name="M:ScanningManager.UsbRelay.Finalize">
+            <summary>
+            Destructor. Closes relay.
+            </summary>
+            <param name="Command"></param>
+        </member>
+        <member name="M:ScanningManager.UsbRelay.SendRelayCommand(System.String)">
+            <summary>
+            Gives a command to the relay
+            </summary>
+            <param name="Command">command</param>
+        </member>
+        <member name="M:ScanningManager.UsbRelay.ReadRelayStatus">
+            <summary>
+            Reads the status of all ports
+            </summary>
+            <returns>port 4321 0 open 1 closed</returns>
+        </member>
+    </members>
+</doc>
